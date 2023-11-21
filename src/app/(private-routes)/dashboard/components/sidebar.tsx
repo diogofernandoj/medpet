@@ -100,7 +100,7 @@ const Sidebar = () => {
         </Popover>
       </div>
       <button
-        className="items-center gap-2 hidden lg:flex text-sm text-red-400 absolute bottom-6 left-8 font-medium"
+        className="lg:flex items-center gap-2 hidden text-sm text-red-400 absolute bottom-6 left-8 font-medium"
         onClick={handleSignOutClick}
       >
         <LogOutIcon size={18} /> Sair
