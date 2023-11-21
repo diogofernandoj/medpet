@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { authOptions } from "../lib/auth";
+import Sidebar from "./dashboard/components/sidebar";
 
 export default async function PrivateLayout({
   children,
@@ -14,5 +15,10 @@ export default async function PrivateLayout({
     redirect("/");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <Sidebar />
+      {children}
+    </>
+  );
 }
