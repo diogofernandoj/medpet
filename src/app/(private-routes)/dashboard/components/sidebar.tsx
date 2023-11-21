@@ -15,6 +15,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -54,22 +55,33 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="h-20 w-full bg-white fixed bottom-0 right-o left-0 shadow-md">
-      <div className="flex items-center w-[90%] mx-auto justify-between h-full text-gray-300">
+    <div className="h-20 w-full bg-white fixed bottom-0 right-0 left-0 shadow-md lg:h-full lg:w-80 lg:right-auto">
+      <div className="w-max mx-auto p-4 hidden lg:block">
+        <Image
+          src="/medpet.svg"
+          alt="Logotipo Medpet"
+          height={0}
+          width={0}
+          sizes="100vw"
+          className="h-20 w-auto"
+        />
+      </div>
+      <div className="flex items-center w-[90%] mx-auto h-full text-gray-400 lg:flex-col lg:items-start lg:gap-6">
         {sidebarItems.map((item) => (
           <Link
             href={item.route}
             key={item.route}
-            className={`flex flex-1 flex-col items-center gap-1 text-xs font-medium justify-center ${
-              pathname === item.route && "text-primary "
+            className={`flex flex-1 flex-col items-center lg:hover:bg-green-50 transition-all ease-in-out lg:hover:text-primary lg:w-full lg:py-2 lg:justify-start text-xs font-medium lg:pl-6 justify-center lg:flex-row lg:text-base lg:gap-3 lg:flex-initial ${
+              pathname === item.route &&
+              "text-primary lg:bg-green-50 lg:after:w-1 lg:after:h-full lg:after:bg-primary lg:after:absolute lg:relative lg:after:left-0"
             } ${item.route === "/settings" && "hidden lg:flex"}`}
           >
             {item.icon}
-            <span className="">{item.label}</span>
+            <span className="mt-1">{item.label}</span>
           </Link>
         ))}
         <Popover>
-          <PopoverTrigger className="flex flex-col items-center gap-1 text-xs font-medium justify-center flex-1">
+          <PopoverTrigger className="flex flex-col items-center gap-1 text-xs font-medium justify-center flex-1 lg:hidden">
             <MoreHorizontalIcon />
             <span>Mais</span>
           </PopoverTrigger>
@@ -87,6 +99,12 @@ const Sidebar = () => {
           </PopoverContent>
         </Popover>
       </div>
+      <button
+        className="items-center gap-2 hidden lg:flex text-sm text-red-400 absolute bottom-6 left-8 font-medium"
+        onClick={handleSignOutClick}
+      >
+        <LogOutIcon size={18} /> Sair
+      </button>
     </div>
   );
 };
