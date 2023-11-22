@@ -25,7 +25,7 @@ const CalendarDateRangePicker = ({
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
-        <PopoverTrigger asChild>
+        <PopoverTrigger asChild className="shadow-lg">
           <Button
             id="date"
             variant={"outline"}
@@ -34,7 +34,7 @@ const CalendarDateRangePicker = ({
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon size={18} className="text-gray-800 lg:mr-2" />
+            <CalendarIcon size={18} className="text-primary lg:mr-2" />
             <span className="hidden lg:block">
               {date?.from ? (
                 date.to ? (
