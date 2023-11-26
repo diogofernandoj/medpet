@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { addDays, format } from "date-fns";
-import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import {
@@ -13,18 +12,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
+
+interface CalendarDateRangePickerProps {
+  date: DateRange | undefined;
+  setDate: (date: DateRange | undefined) => void;
+  getUserTransactions: () => void;
+}
 
 const CalendarDateRangePicker = ({
-  className,
-}: React.HTMLAttributes<HTMLDivElement>) => {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2023, 0, 20),
-    to: addDays(new Date(2023, 0, 20), 20),
-  });
+  date,
+  setDate,
+  getUserTransactions,
+}: CalendarDateRangePickerProps) => {
+  const handleDatePicked = (action: boolean) => {
+    if (!action) {
+      getUserTransactions();
+    }
+  };
 
   return (
-    <div className={cn("grid gap-2", className)}>
-      <Popover>
+    <div className="grid gap-2">
+      <Popover onOpenChange={(e) => handleDatePicked(e)}>
         <PopoverTrigger asChild className="shadow-lg">
           <Button
             id="date"
@@ -46,7 +55,7 @@ const CalendarDateRangePicker = ({
                   format(date.from, "LLL dd, y")
                 )
               ) : (
-                <span>Pick a date</span>
+                <span>Selecione uma data</span>
               )}
             </span>
           </Button>
