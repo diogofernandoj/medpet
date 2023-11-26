@@ -15,8 +15,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const earnings = await prismaClient.transaction.findMany({
-    where: {
+  let generateSearchQuery = () => {
+    let searchQuery: any = {
       AND: [
         {
           user_id: userId,
@@ -27,11 +27,29 @@ export async function POST(request: Request) {
             lte: endDate,
           },
         },
-        {
-          type,
-        },
       ],
-    },
+    };
+
+    if (type) {
+      searchQuery = {
+        ...searchQuery,
+        AND: [
+          ...searchQuery.AND,
+          {
+            type,
+          },
+          {
+            status: true,
+          },
+        ],
+      };
+    }
+
+    return searchQuery;
+  };
+
+  const earnings = await prismaClient.transaction.findMany({
+    where: generateSearchQuery(),
   });
 
   return new NextResponse(JSON.stringify(earnings), { status: 200 });

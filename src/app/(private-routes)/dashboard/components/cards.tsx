@@ -2,71 +2,12 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DollarSignIcon, ScaleIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import CalendarDateRangePicker from "./date-range-picker";
-import { DateRange } from "react-day-picker";
+import { DateRangeContext } from "@/app/providers/date-range";
 
-const Cards = ({ userId }: { userId: string | undefined }) => {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    to: new Date(),
-  });
-
-  const getUserEarnings = async () => {
-    const response = await fetch(`/api/user/${userId}/transactions`, {
-      method: "POST",
-      body: JSON.stringify({
-        userId,
-        startDate: date?.from,
-        endDate: date?.to,
-        type: "EARNING",
-      }),
-    });
-
-    const res = await response.json();
-
-    const earnings = res.reduce(
-      (acc: any, curr: any) => acc + Number(curr.amount),
-      0
-    );
-
-    setUserEarnings(earnings);
-  };
-  const getUserExpenses = async () => {
-    const response = await fetch(`/api/user/${userId}/transactions`, {
-      method: "POST",
-      body: JSON.stringify({
-        userId,
-        startDate: date?.from,
-        endDate: date?.to,
-        type: "EXPENSE",
-      }),
-    });
-
-    const res = await response.json();
-
-    const expenses = res.reduce(
-      (acc: any, curr: any) => acc + Number(curr.amount),
-      0
-    );
-
-    setUserExpenses(expenses);
-  };
-
-  const getUserTransactions = async () => {
-    await Promise.all([getUserEarnings(), getUserExpenses()]);
-  };
-
-  useEffect(() => {
-    getUserTransactions();
-  }, []);
-
-  const [userEarnings, setUserEarnings] = useState(0);
-  const [userExpenses, setUserExpenses] = useState(0);
-
-  const userBalance = () => {
-    return userEarnings - userExpenses;
-  };
+const Cards = () => {
+  const { earnings, expenses, balance } = useContext(DateRangeContext);
 
   return (
     <div className="flex flex-col bg-primary">
@@ -74,14 +15,10 @@ const Cards = ({ userId }: { userId: string | undefined }) => {
         <h1 className="font-semibold text-xl lg:text-2xl text-white">
           Dashboard
         </h1>
-        <CalendarDateRangePicker
-          date={date}
-          setDate={setDate}
-          getUserTransactions={getUserTransactions}
-        />
+        <CalendarDateRangePicker />
       </div>
-      <div className="grid grid-cols-3 px-2 -mb-14 gap-2 mt-4">
-        <Card className="shadow-lg" onClick={getUserEarnings}>
+      <div className="grid grid-cols-3 px-2 lg:px-5 -mb-14 gap-2 mt-4">
+        <Card className="shadow-lg">
           <CardHeader>
             <DollarSignIcon
               size={18}
@@ -90,10 +27,16 @@ const Cards = ({ userId }: { userId: string | undefined }) => {
           </CardHeader>
           <CardContent className="flex flex-col items-center lg:items-start lg:px-6 px-2">
             <p className="text-xs text-gray-400 lg:text-sm">Entradas</p>
-            <p className="text-sm lg:text-xl font-bold">+R${userEarnings}</p>
+            <p className="text-sm lg:text-xl font-bold text-gray-700">
+              +
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(earnings)}
+            </p>
           </CardContent>
         </Card>
-        <Card className="shadow-lg" onClick={getUserExpenses}>
+        <Card className="shadow-lg">
           <CardHeader>
             <DollarSignIcon
               size={18}
@@ -102,7 +45,13 @@ const Cards = ({ userId }: { userId: string | undefined }) => {
           </CardHeader>
           <CardContent className="flex flex-col items-center lg:items-start lg:px-6 px-2">
             <p className="text-xs text-gray-400 lg:text-sm">Saídas</p>
-            <p className="text-sm lg:text-xl font-bold">-R${userExpenses}</p>
+            <p className="text-sm lg:text-xl font-bold text-gray-700">
+              -
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(expenses)}
+            </p>
           </CardContent>
         </Card>
         <Card className="shadow-lg">
@@ -114,7 +63,12 @@ const Cards = ({ userId }: { userId: string | undefined }) => {
           </CardHeader>
           <CardContent className="flex flex-col items-center lg:items-start lg:px-6 px-2">
             <p className="text-xs lg:text-sm text-gray-400">Saldo</p>
-            <p className="text-sm lg:text-xl font-bold">R${userBalance()}</p>
+            <p className="text-sm lg:text-xl font-bold text-gray-700">
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(balance)}
+            </p>
           </CardContent>
         </Card>
       </div>

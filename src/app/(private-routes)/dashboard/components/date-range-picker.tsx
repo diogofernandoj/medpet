@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -12,22 +11,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { DateRange } from "react-day-picker";
+import { useContext } from "react";
+import { DateRangeContext } from "@/app/providers/date-range";
 
-interface CalendarDateRangePickerProps {
-  date: DateRange | undefined;
-  setDate: (date: DateRange | undefined) => void;
-  getUserTransactions: () => void;
-}
+const CalendarDateRangePicker = () => {
+  const { date, setDate, getUserInfo } = useContext(DateRangeContext);
 
-const CalendarDateRangePicker = ({
-  date,
-  setDate,
-  getUserTransactions,
-}: CalendarDateRangePickerProps) => {
   const handleDatePicked = (action: boolean) => {
     if (!action) {
-      getUserTransactions();
+      getUserInfo();
     }
   };
 
