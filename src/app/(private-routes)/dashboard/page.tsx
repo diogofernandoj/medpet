@@ -8,7 +8,7 @@ const Dashboard = async () => {
   const session = await getServerSession(authOptions);
 
   return (
-    <div className="lg:px-80">
+    <div className="lg:px-80 pb-20 lg:pb-0">
       <DateRangeProvider userId={session?.user.id}>
         <Cards />
         <div className="mt-20 px-1 lg:px-5">
