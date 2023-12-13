@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import AddTransactionButton from "../components/add-transaction-button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -46,8 +47,8 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="bg-white px-4 rounded-md shadow-md">
-      <div className="flex items-center py-4">
+    <div className="bg-white px-2 lg:px-5 rounded-md shadow-md">
+      <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Pesquise aqui"
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -56,6 +57,7 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm bg-white"
         />
+        <AddTransactionButton />
       </div>
       <div className="rounded-md border bg-white">
         <Table>
