@@ -23,7 +23,6 @@ model User {
 enum transactionTypes {
   EARNING
   EXPENSE
-  SAFE
 }
 
 model Transaction {
@@ -35,6 +34,7 @@ model Transaction {
   amount  Decimal          @db.Decimal(8, 2)
   type    transactionTypes
   status  Boolean
+  notes   String
 
   @@map("transactions")
 }
