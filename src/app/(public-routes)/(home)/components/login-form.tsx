@@ -43,7 +43,6 @@ const LoginForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    console.log(values);
 
     const res = await signIn("credentials", {
       email: values.email,
@@ -52,7 +51,6 @@ const LoginForm = () => {
     });
 
     if (res?.error) {
-      console.log(res);
       toast({
         description: "Os dados inseridos são inválidos!",
         variant: "destructive",
