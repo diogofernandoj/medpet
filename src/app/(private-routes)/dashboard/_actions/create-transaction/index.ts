@@ -55,7 +55,7 @@ export const createTransaction = async ({
         date: new Date(
           new Date(date).getFullYear(),
           new Date(date).getMonth() + i,
-          new Date(date).getDate()
+          1
         ),
         type,
         status: false,
