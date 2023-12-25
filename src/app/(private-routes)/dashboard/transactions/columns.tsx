@@ -132,6 +132,7 @@ export const columns: ColumnDef<Transaction>[] = [
               </DialogTrigger>
               <DialogContent>
                 <TransactionForm
+                  transactionId={row.original.id}
                   data={{
                     title: row.original.title,
                     amount: Number(row.original.amount),
