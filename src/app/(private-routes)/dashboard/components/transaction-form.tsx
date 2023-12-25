@@ -12,11 +12,10 @@ import {
 import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -40,6 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createTransaction } from "../_actions/create-transaction";
+import { DateRangeContext } from "@/app/providers/date-range";
 
 const formSchema = z.object({
   title: z.string().trim().min(2, { message: "O título é obrigatório" }),
@@ -49,13 +50,31 @@ const formSchema = z.object({
   installments: z.coerce
     .number()
     .min(1, { message: "O número de parcelas deve ser maior que 0" }),
-  status: z.enum(["PAID", "PENDING"]),
-  description: z.string().trim().optional(),
+  status: z.string({ required_error: "O status não pode ficar em branco" }),
+  notes: z.string().trim(),
 });
 
-const AddTransactionForm = () => {
-  const router = useRouter();
+interface TransactionFormProps {
+  setTransactionAdded: (data: any) => void;
+  data?: {
+    title: string;
+    type: string;
+    date: Date;
+    amount: number;
+    status: boolean;
+    notes: string;
+  };
+}
+
+const TransactionForm = ({
+  setTransactionAdded,
+  data,
+}: TransactionFormProps) => {
+  const { setRevalidateTransactions } = useContext(DateRangeContext);
+
   const { toast } = useToast();
+
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,14 +84,38 @@ const AddTransactionForm = () => {
       date: new Date(),
       amount: "0",
       installments: 1,
-      status: "PAID",
-      description: "",
+      status: "1",
+      notes: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    setLoading(true);
+    const { title, date, type, status, amount, installments, notes } = values;
+
+    const res = await createTransaction({
+      title,
+      date,
+      type,
+      status: !!Number(status),
+      amount: Number(amount),
+      installments,
+      notes,
+    });
+
+    if (res.message) {
+      toast({
+        description: "Falha ao registrar transação",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    setRevalidateTransactions((prev: number) => prev + 1);
+    setTransactionAdded(true);
   };
+
   return (
     <Form {...form}>
       <Toaster />
@@ -87,6 +130,7 @@ const AddTransactionForm = () => {
                 <Input
                   placeholder="Insira um título"
                   {...field}
+                  value={data?.title || field.value}
                   className="rounded-lg border w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
                 />
               </FormControl>
@@ -101,7 +145,10 @@ const AddTransactionForm = () => {
           render={({ field }) => (
             <FormItem className="flex items-center gap-4">
               <FormLabel className="w-1/5">Tipo</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={data?.type || field.value}
+              >
                 <FormControl>
                   <SelectTrigger className="bg-white w-full">
                     <SelectValue placeholder="Selecione o tipo da transação" />
@@ -141,8 +188,10 @@ const AddTransactionForm = () => {
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, "dd / MM / yyyy", {})
+                      {data?.date ? (
+                        format(data.date, "dd / MM / yyyy")
+                      ) : field.value ? (
+                        format(field.value, "dd / MM / yyyy")
                       ) : (
                         <span>Selecione uma data</span>
                       )}
@@ -153,7 +202,7 @@ const AddTransactionForm = () => {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value}
+                    selected={data?.date || field.value}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date("2023-01-01")}
                     initialFocus
@@ -176,7 +225,8 @@ const AddTransactionForm = () => {
                   decimalsLimit={2}
                   placeholder="R$0,00"
                   onValueChange={field.onChange}
-                  value={field.value}
+                  defaultValue={data?.amount || undefined}
+                  value={(!data?.amount && field.value) || undefined}
                   onBlur={field.onBlur}
                   className="w-full"
                 />
@@ -185,26 +235,27 @@ const AddTransactionForm = () => {
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="installments"
-          render={({ field }) => (
-            <FormItem className="flex items-center gap-4">
-              <FormLabel className="w-1/5">Parcelas</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Número de parcelas"
-                  {...field}
-                  type="number"
-                  min={1}
-                  className="rounded-lg border w-full border-gray-300 bg-white p-2 text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!data && (
+          <FormField
+            control={form.control}
+            name="installments"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Parcelas</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Número de parcelas"
+                    {...field}
+                    type="number"
+                    min={1}
+                    className="rounded-lg border w-full border-gray-300 bg-white p-2 text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
@@ -219,10 +270,10 @@ const AddTransactionForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="PAID">
+                  <SelectItem value="1">
                     <span className="flex items-center gap-1">Pago</span>
                   </SelectItem>
-                  <SelectItem value="PENDING">
+                  <SelectItem value="0">
                     <span className="flex items-center gap-1">Pendente</span>
                   </SelectItem>
                 </SelectContent>
@@ -234,13 +285,13 @@ const AddTransactionForm = () => {
 
         <FormField
           control={form.control}
-          name="description"
+          name="notes"
           render={({ field }) => (
             <FormItem className="flex items-center gap-4">
-              <FormLabel className="w-1/6">Descrição</FormLabel>
+              <FormLabel className="w-1/6">Anotações</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Insira um descrição (opcional)"
+                  placeholder="Adicione uma anotação (opcional)"
                   {...field}
                   className="rounded-lg border w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
                 />
@@ -250,11 +301,19 @@ const AddTransactionForm = () => {
           )}
         />
         <DialogFooter>
-          <Button type="submit">Criar</Button>
+          <Button variant="ghost">Cancelar</Button>
+
+          <Button
+            disabled={loading}
+            type="submit"
+            className={`font-bold ${loading && "bg-opacity-75"}`}
+          >
+            {loading ? <Loader2Icon className="animate-spin" /> : "Criar"}
+          </Button>
         </DialogFooter>
       </form>
     </Form>
   );
 };
 
-export default AddTransactionForm;
+export default TransactionForm;
