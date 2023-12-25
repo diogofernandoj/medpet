@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -19,19 +18,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Input } from "@/components/ui/input";
 import AddTransactionButton from "../components/add-transaction-button";
+import { columns } from "./columns";
+import { DateRangeContext } from "@/app/providers/date-range";
+import { getUserTransactions } from "../_actions/user-balance";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-}
+export const DataTable = () => {
+  const { transactions: data } = useContext(DateRangeContext);
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
@@ -131,4 +127,4 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   );
-}
+};

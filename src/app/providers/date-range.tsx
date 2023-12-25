@@ -2,126 +2,77 @@
 
 import { Transaction } from "@prisma/client";
 import { ReactNode, createContext, useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
+import { getUserTransactions } from "../(private-routes)/dashboard/_actions/user-balance";
 
 interface IDateRangeContext {
-  date: DateRange | undefined;
-  setDate: (date: DateRange | undefined) => void;
   transactions: Transaction[];
+  setTransactions: (data: any) => void;
   earnings: number;
   expenses: number;
   balance: number;
-  getUserInfo: () => void;
+  setRevalidateTransactions: (prev: (prev: number) => number) => void;
 }
 
 export const DateRangeContext = createContext<IDateRangeContext>({
-  date: {
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    to: new Date(),
-  },
-  setDate: () => {},
   transactions: [],
+  setTransactions: () => {},
   earnings: 0,
   expenses: 0,
   balance: 0,
-  getUserInfo: async () => {},
+  setRevalidateTransactions: () => {},
 });
 
 interface DateRangeProviderProps {
   children: ReactNode;
-  userId: string | undefined;
 }
 
-const DateRangeProvider = ({ children, userId }: DateRangeProviderProps) => {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    to: new Date(),
-  });
+const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const [transactions, setTransactions] = useState([]);
-  const [earnings, setEarnings] = useState(0);
-  const [expenses, setExpenses] = useState(0);
+  const earnings = transactions.length
+    ? transactions
+        .filter((transaction) => transaction.type === "EARNING")
+        .reduce((acc, curr) => acc + Number(curr.amount), 0)
+    : 0;
+
+  const expenses = transactions.length
+    ? transactions
+        .filter((transaction) => transaction.type === "EXPENSE")
+        .reduce((acc, curr) => acc + Number(curr.amount), 0)
+    : 0;
 
   const balance = earnings - expenses;
 
-  const getUserTransactions = async () => {
-    const response = await fetch(`/api/user/${userId}/transactions`, {
-      method: "POST",
-      body: JSON.stringify({
-        userId,
-        startDate: date?.from,
-        endDate: `${date?.to?.toISOString() || date?.from?.toISOString()}`,
-      }),
-    });
+  const [revalidateTransactions, setRevalidateTransactions] = useState(0);
 
-    const transactions = await response.json();
-
-    setTransactions(transactions);
-  };
-
-  const getUserEarnings = async () => {
-    const response = await fetch(`/api/user/${userId}/transactions`, {
-      method: "POST",
-      body: JSON.stringify({
-        userId,
-        startDate: date?.from,
-        endDate: `${date?.to?.toISOString() || date?.from?.toISOString()}`,
-        type: "EARNING",
-      }),
-    });
-
-    const res = await response.json();
-
-    const earnings = res.reduce(
-      (acc: any, curr: any) => acc + Number(curr.amount),
-      0
-    );
-
-    setEarnings(earnings);
-  };
-
-  const getUserExpenses = async () => {
-    const response = await fetch(`/api/user/${userId}/transactions`, {
-      method: "POST",
-      body: JSON.stringify({
-        userId,
-        startDate: date?.from,
-        endDate: `${date?.to?.toISOString() || date?.from?.toISOString()}`,
-        type: "EXPENSE",
-      }),
-    });
-
-    const res = await response.json();
-
-    const expenses = res.reduce(
-      (acc: any, curr: any) => acc + Number(curr.amount),
-      0
-    );
-
-    setExpenses(expenses);
-  };
-
-  const getUserInfo = async () => {
-    await Promise.all([
-      getUserTransactions(),
-      getUserEarnings(),
-      getUserExpenses(),
-    ]);
-  };
   useEffect(() => {
+    const startDate = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    );
+    const endDate = new Date();
+
+    const getUserInfo = async () => {
+      const { transactions } = await getUserTransactions({
+        startDate,
+        endDate,
+      });
+
+      setTransactions(transactions!);
+    };
     getUserInfo();
-  }, []);
+  }, [revalidateTransactions]);
 
   return (
     <DateRangeContext.Provider
       value={{
-        date,
-        setDate,
         transactions,
+        setTransactions,
         earnings,
         expenses,
         balance,
-        getUserInfo,
+        setRevalidateTransactions,
       }}
     >
       {children}

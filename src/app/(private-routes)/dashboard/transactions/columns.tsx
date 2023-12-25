@@ -2,23 +2,34 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import localePtBr from "date-fns/locale/pt-BR";
 import {
+  AlertTriangleIcon,
   ArrowDownIcon,
   ArrowUpIcon,
   MoreHorizontal,
-  PencilIcon,
+  PenSquareIcon,
+  Settings2Icon,
   Trash2Icon,
 } from "lucide-react";
+import TransactionForm from "../components/transaction-form";
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -101,7 +112,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     id: "actions",
-    cell: () => {
+    cell: ({ row }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -113,12 +124,71 @@ export const columns: ColumnDef<Transaction>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex items-center gap-1 font-medium">
-              <PencilIcon size={14} /> Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-1 font-medium">
-              <Trash2Icon size={14} /> Excluir
-            </DropdownMenuItem>
+            <Dialog>
+              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
+                <button className="flex items-center gap-1 font-medium text-xs p-1">
+                  <Settings2Icon size={14} /> Editar
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <TransactionForm
+                  data={{
+                    title: row.original.title,
+                    amount: Number(row.original.amount),
+                    date: row.original.date,
+                    notes: row.original.notes,
+                    status: row.original.status,
+                    type: row.original.type,
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
+                <button className="flex items-center gap-1 font-medium text-xs p-1">
+                  <Trash2Icon size={14} /> Excluir
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <span className="flex mr-4 items-center gap-2 bg-red-200 text-red-500 border-l-4 font-medium p-2 text-sm border-red-500">
+                    <AlertTriangleIcon size={20} /> Deletar transação
+                  </span>
+                </DialogHeader>
+                <p className="text-xs text-gray-400">
+                  Você tem certeza que deseja deletar essa transação? Essa ação
+                  não pode ser desfeita.
+                </p>
+                <div className="flex items-center gap-2 justify-end">
+                  <DialogClose asChild>
+                    <Button variant="ghost">Cancelar</Button>
+                  </DialogClose>
+                  <Button variant="destructive">Confirmar</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
+                <button className="flex items-center gap-1 font-medium text-xs p-1">
+                  <PenSquareIcon size={14} /> Anotações
+                </button>
+              </DialogTrigger>
+              <DialogContent className="bg-white">
+                <DialogHeader className="mb-4">
+                  <p className="text-sm">{`${row.original.title}, ${format(
+                    row.original.date,
+                    "dd 'de' MMMM 'de' yyyy",
+                    {
+                      locale: localePtBr,
+                    }
+                  )}`}</p>
+                </DialogHeader>
+                <span className="font-semibold text-xs text-primary">
+                  Anotações:
+                </span>
+                <Input type="text" disabled value={row.original.notes} />
+              </DialogContent>
+            </Dialog>
           </DropdownMenuContent>
         </DropdownMenu>
       );

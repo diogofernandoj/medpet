@@ -11,15 +11,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { DateRangeContext } from "@/app/providers/date-range";
+import { getUserTransactions } from "../_actions/user-balance";
+import { DateRange } from "react-day-picker";
 
 const CalendarDateRangePicker = () => {
-  const { date, setDate, getUserInfo } = useContext(DateRangeContext);
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    to: new Date(),
+  });
 
-  const handleDatePicked = (action: boolean) => {
+  const { setTransactions } = useContext(DateRangeContext);
+
+  const handleDatePicked = async (action: boolean) => {
     if (!action) {
-      getUserInfo();
+      const { transactions } = await getUserTransactions({
+        startDate: date?.from,
+        endDate: date?.to,
+      });
+
+      setTransactions(transactions);
     }
   };
 
