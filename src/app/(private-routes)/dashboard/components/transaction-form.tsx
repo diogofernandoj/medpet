@@ -127,6 +127,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       amount: Number(amount),
       installments,
       notes,
+      payment: "DEBIT",
     });
 
     if (res.message) {
