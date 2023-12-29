@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import AddTransactionButton from "../components/add-transaction-button";
 import { columns } from "./columns";
 import { DateRangeContext } from "@/app/providers/date-range";
-import { getUserTransactions } from "../_actions/user-balance";
 
 export const DataTable = () => {
   const { transactions: data } = useContext(DateRangeContext);

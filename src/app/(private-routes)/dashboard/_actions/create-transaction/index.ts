@@ -2,13 +2,8 @@
 
 import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
-import {
-  Transaction,
-  paymentMethodTypes,
-  transactionTypes,
-} from "@prisma/client";
+import { paymentMethodTypes, transactionTypes } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 
 interface CreateTransactionProps {
   title: string;
@@ -45,14 +40,14 @@ export const createTransaction = async ({
     };
   }
 
-  let data: Transaction[] = [];
+  let data: any[] = [];
 
   for (let i = 0; i < installments; i++) {
     if (i === 0) {
       data.push({
         user_id,
         title,
-        date: new Date(new Date(date).setHours(-3, 0, 0, 0)),
+        date: new Date(new Date(date).setHours(0, 0, 0, 0)),
         type,
         status,
         amount,
@@ -67,7 +62,7 @@ export const createTransaction = async ({
           new Date(date).getFullYear(),
           new Date(date).getMonth() + i,
           1,
-          -3,
+          0,
           0,
           0,
           0

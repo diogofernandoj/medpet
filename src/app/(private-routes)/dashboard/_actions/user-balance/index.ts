@@ -3,7 +3,6 @@
 import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 
 interface UserTransactionsProps {
   startDate?: Date | undefined;
@@ -69,7 +68,7 @@ export const getUserTransactions = async ({
     where: generateSearchQuery(),
   });
 
-  revalidatePath("/dashboard");
+  console.log(transactions);
 
   return { transactions, statusCode: 200 };
 };

@@ -4,7 +4,6 @@ import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
 import { transactionTypes } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 
 interface EditTransactionProps {
   transactionId: string;
@@ -51,8 +50,6 @@ export const editTransaction = async ({
     },
     data,
   });
-
-  revalidatePath("/dashboard");
 
   return { transaction, statusCode: 200 };
 };
