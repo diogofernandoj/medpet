@@ -7,6 +7,8 @@ import { getUserTransactions } from "../(private-routes)/dashboard/_actions/user
 interface IDateRangeContext {
   transactions: Transaction[];
   setTransactions: (data: any) => void;
+  profit: number;
+  prejudice: number;
   earnings: number;
   expenses: number;
   balance: number;
@@ -16,6 +18,8 @@ interface IDateRangeContext {
 export const DateRangeContext = createContext<IDateRangeContext>({
   transactions: [],
   setTransactions: () => {},
+  profit: 0,
+  prejudice: 0,
   earnings: 0,
   expenses: 0,
   balance: 0,
@@ -29,15 +33,31 @@ interface DateRangeProviderProps {
 const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const earnings = transactions.length
+  const profit = transactions.length
     ? transactions
         .filter((transaction) => transaction.type === "EARNING")
         .reduce((acc, curr) => acc + Number(curr.amount), 0)
     : 0;
 
-  const expenses = transactions.length
+  const prejudice = transactions.length
     ? transactions
         .filter((transaction) => transaction.type === "EXPENSE")
+        .reduce((acc, curr) => acc + Number(curr.amount), 0)
+    : 0;
+
+  const earnings = transactions.length
+    ? transactions
+        .filter(
+          (transaction) => transaction.type === "EARNING" && transaction.status
+        )
+        .reduce((acc, curr) => acc + Number(curr.amount), 0)
+    : 0;
+
+  const expenses = transactions.length
+    ? transactions
+        .filter(
+          (transaction) => transaction.type === "EXPENSE" && transaction.status
+        )
         .reduce((acc, curr) => acc + Number(curr.amount), 0)
     : 0;
 
@@ -59,6 +79,8 @@ const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
         endDate,
       });
 
+      transactions?.sort((a, b) => Number(b.date) - Number(a.date));
+
       setTransactions(transactions!);
     };
     getUserInfo();
@@ -69,6 +91,8 @@ const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
       value={{
         transactions,
         setTransactions,
+        profit,
+        prejudice,
         earnings,
         expenses,
         balance,

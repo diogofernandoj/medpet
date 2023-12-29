@@ -6,7 +6,8 @@ import { DollarSignIcon, ScaleIcon } from "lucide-react";
 import { useContext } from "react";
 
 const Cards = () => {
-  const { earnings, expenses, balance } = useContext(DateRangeContext);
+  const { profit, prejudice, earnings, expenses, balance } =
+    useContext(DateRangeContext);
 
   return (
     <div className="grid grid-cols-3 px-2 lg:px-5 -mb-14 gap-2 mt-4">
@@ -19,13 +20,20 @@ const Cards = () => {
         </CardHeader>
         <CardContent className="flex flex-col items-center lg:items-start lg:px-6 px-2">
           <p className="text-xs text-gray-400 lg:text-sm">Entradas</p>
-          <p className="text-sm lg:text-xl font-bold text-gray-700">
-            +
-            {new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(earnings)}
-          </p>
+          <div className="flex flex-col lg:flex-row items-center">
+            <span className="text-sm lg:text-xl font-bold text-gray-700">
+              +
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(earnings)}
+            </span>
+            {profit > earnings && (
+              <span className="text-sm text-black font-medium hidden lg:block">
+                /{profit.toFixed(2).replace(".", ",")}
+              </span>
+            )}
+          </div>
         </CardContent>
       </Card>
       <Card className="shadow-lg">
@@ -37,13 +45,20 @@ const Cards = () => {
         </CardHeader>
         <CardContent className="flex flex-col items-center lg:items-start lg:px-6 px-2">
           <p className="text-xs text-gray-400 lg:text-sm">Saídas</p>
-          <p className="text-sm lg:text-xl font-bold text-gray-700">
-            -
-            {new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(expenses)}
-          </p>
+          <div className="flex flex-col lg:flex-row items-center">
+            <span className="text-sm lg:text-xl font-bold text-gray-700">
+              -
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(expenses)}
+            </span>
+            {prejudice > expenses && (
+              <span className="text-sm text-black font-medium hidden lg:block">
+                /{prejudice.toFixed(2).replace(".", ",")}
+              </span>
+            )}
+          </div>
         </CardContent>
       </Card>
       <Card className="shadow-lg">
