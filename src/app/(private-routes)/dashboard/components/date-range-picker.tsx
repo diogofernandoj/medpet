@@ -31,6 +31,8 @@ const CalendarDateRangePicker = () => {
         endDate: date?.to,
       });
 
+      transactions?.sort((a, b) => Number(b.date) - Number(a.date));
+
       setTransactions(transactions);
     }
   };

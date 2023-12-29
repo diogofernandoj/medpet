@@ -1,14 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PlusIcon } from "lucide-react";
-import TransactionForm from "./transaction-form";
+import AddTransaction from "./add-transaction";
 
 const AddTransactionButton = () => {
   return (
@@ -21,8 +14,8 @@ const AddTransactionButton = () => {
           <PlusIcon size={18} /> Adicionar
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <TransactionForm />
+      <DialogContent className="h-[640px]">
+        <AddTransaction />
       </DialogContent>
     </Dialog>
   );
