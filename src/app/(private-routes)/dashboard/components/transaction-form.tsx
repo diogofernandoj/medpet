@@ -43,6 +43,7 @@ import {
 import { createTransaction } from "../_actions/create-transaction";
 import { DateRangeContext } from "@/app/providers/date-range";
 import { editTransaction } from "../_actions/edit-transaction";
+import { paymentMethodTypes } from "@prisma/client";
 
 const formSchema = z.object({
   title: z.string().trim().min(2, { message: "O título é obrigatório" }),
@@ -53,6 +54,7 @@ const formSchema = z.object({
     .number()
     .min(1, { message: "O número de parcelas deve ser maior que 0" }),
   status: z.string({ required_error: "O status não pode ficar em branco" }),
+  payment: z.enum(["PIX", "BILL", "CREDIT", "DEBIT", "CASH"]),
   notes: z.string().trim(),
 });
 
@@ -63,6 +65,7 @@ interface TransactionFormProps {
     date: Date;
     amount: number;
     status: boolean;
+    payment: paymentMethodTypes;
     notes: string;
   };
   transactionId?: string;
@@ -86,13 +89,15 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       amount: JSON.stringify(data?.amount) || "0",
       installments: 1,
       status: !data?.status ? "0" : "1",
+      payment: "CASH",
       notes: data?.notes || "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    const { title, date, type, status, amount, installments, notes } = values;
+    const { title, date, type, status, amount, installments, notes, payment } =
+      values;
 
     if (transactionId) {
       const res = await editTransaction({
@@ -127,7 +132,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       amount: Number(amount),
       installments,
       notes,
-      payment: "DEBIT",
+      payment,
     });
 
     if (res.message) {
@@ -174,7 +179,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                     <Input
                       placeholder="Insira um título"
                       {...field}
-                      className="rounded-lg border w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                      className="rounded-lg border w-full flex-1 border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
                     />
                   </FormControl>
                   <FormMessage />
@@ -193,7 +198,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                     defaultValue={data?.type || field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-white w-full">
+                      <SelectTrigger className="bg-white w-full flex-1">
                         <SelectValue placeholder="Selecione o tipo da transação" />
                       </SelectTrigger>
                     </FormControl>
@@ -227,7 +232,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full pl-3 text-left bg-white",
+                            "w-full pl-3 text-left bg-white flex-1",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -254,48 +259,49 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Valor</FormLabel>
-                  <FormControl>
-                    <CurrencyInput
-                      decimalsLimit={2}
-                      placeholder="R$0,00"
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      onBlur={field.onBlur}
-                      className="w-full"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {!data && (
+            <div className="flex items-center gap-1">
               <FormField
                 control={form.control}
-                name="installments"
+                name="amount"
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-4">
-                    <FormLabel className="w-1/5">Parcelas</FormLabel>
+                  <FormItem className="flex items-center gap-4 w-full flex-1 space-y-0">
+                    <FormLabel className="w-1/3">Valor</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Número de parcelas"
-                        {...field}
-                        type="number"
-                        min={1}
-                        className="rounded-lg border w-full border-gray-300 bg-white p-2 text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                      <CurrencyInput
+                        decimalsLimit={2}
+                        placeholder="R$0,00"
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        onBlur={field.onBlur}
+                        className="w-full"
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            )}
+
+              {!data && (
+                <FormField
+                  control={form.control}
+                  name="installments"
+                  render={({ field }) => (
+                    <FormItem className="w-1/6">
+                      <FormControl>
+                        <Input
+                          placeholder="Número de parcelas"
+                          {...field}
+                          type="number"
+                          min={1}
+                          className="rounded-lg border w-full px-2 h-10 border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
 
             <FormField
               control={form.control}
@@ -308,7 +314,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-white w-full">
+                      <SelectTrigger className="bg-white w-full flex-1">
                         <SelectValue placeholder="Selecione o status da transação" />
                       </SelectTrigger>
                     </FormControl>
@@ -327,18 +333,61 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="payment"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-4">
+                  <FormLabel className="w-1/5">Forma de pagamento</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="bg-white w-full flex-1">
+                        <SelectValue placeholder="Selecione a forma de pagamento" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="CASH">
+                        <span className="flex items-center gap-1">
+                          Dinheiro
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="BILL">
+                        <span className="flex items-center gap-1">Boleto</span>
+                      </SelectItem>
+                      <SelectItem value="CREDIT">
+                        <span className="flex items-center gap-1">
+                          Cartão de crédito
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="DEBIT">
+                        <span className="flex items-center gap-1">
+                          Cartão de débito
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="PIX">
+                        <span className="flex items-center gap-1">PIX</span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
               name="notes"
               render={({ field }) => (
                 <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/6">Anotações</FormLabel>
+                  <FormLabel className="w-1/5">Anotações</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Adicione uma anotação (opcional)"
                       {...field}
-                      className="rounded-lg border w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                      className="rounded-lg border flex-1 w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
                     />
                   </FormControl>
                   <FormMessage />
