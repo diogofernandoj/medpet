@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
-import { transactionTypes } from "@prisma/client";
+import { paymentMethodTypes, transactionTypes } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 interface EditTransactionProps {
@@ -13,6 +13,7 @@ interface EditTransactionProps {
   status: boolean;
   amount: number;
   notes: string;
+  payment: paymentMethodTypes;
 }
 
 export const editTransaction = async ({
@@ -23,6 +24,7 @@ export const editTransaction = async ({
   status,
   amount,
   notes,
+  payment,
 }: EditTransactionProps) => {
   const session = await getServerSession(authOptions);
   const user_id = session?.user.id;
@@ -42,7 +44,10 @@ export const editTransaction = async ({
     amount,
     type,
     notes,
+    payment,
   };
+
+  console.log(data);
 
   const transaction = await prismaClient.transaction.update({
     where: {
