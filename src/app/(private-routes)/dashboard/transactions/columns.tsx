@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTrigger,
@@ -21,15 +20,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import localePtBr from "date-fns/locale/pt-BR";
 import {
-  AlertTriangleIcon,
   ArrowDownIcon,
   ArrowUpIcon,
   MoreHorizontal,
   PenSquareIcon,
   Settings2Icon,
-  Trash2Icon,
 } from "lucide-react";
 import TransactionForm from "../components/transaction-form";
+import DeleteTransaction from "../components/delete-transaction";
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -138,36 +136,14 @@ export const columns: ColumnDef<Transaction>[] = [
                     amount: Number(row.original.amount),
                     date: row.original.date,
                     notes: row.original.notes,
+                    payment: row.original.payment,
                     status: row.original.status,
                     type: row.original.type,
                   }}
                 />
               </DialogContent>
             </Dialog>
-            <Dialog>
-              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
-                <button className="flex items-center gap-1 font-medium text-xs p-1">
-                  <Trash2Icon size={14} /> Excluir
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <span className="flex mr-4 items-center gap-2 bg-red-200 text-red-500 border-l-4 font-medium p-2 text-sm border-red-500">
-                    <AlertTriangleIcon size={20} /> Deletar transação
-                  </span>
-                </DialogHeader>
-                <p className="text-xs text-gray-400">
-                  Você tem certeza que deseja deletar essa transação? Essa ação
-                  não pode ser desfeita.
-                </p>
-                <div className="flex items-center gap-2 justify-end">
-                  <DialogClose asChild>
-                    <Button variant="ghost">Cancelar</Button>
-                  </DialogClose>
-                  <Button variant="destructive">Confirmar</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <DeleteTransaction transactionId={row.original.id} />
             <Dialog>
               <DialogTrigger asChild className="hover:bg-gray-100 w-full">
                 <button className="flex items-center gap-1 font-medium text-xs p-1">
