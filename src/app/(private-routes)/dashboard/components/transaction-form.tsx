@@ -89,7 +89,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       amount: JSON.stringify(data?.amount) || "0",
       installments: 1,
       status: !data?.status ? "0" : "1",
-      payment: "CASH",
+      payment: data?.payment || "CASH",
       notes: data?.notes || "",
     },
   });
@@ -108,6 +108,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
         status: !!Number(status),
         title,
         type,
+        payment,
       });
 
       if (res.message) {
