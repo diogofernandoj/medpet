@@ -47,8 +47,6 @@ export const editTransaction = async ({
     payment,
   };
 
-  console.log(data);
-
   const transaction = await prismaClient.transaction.update({
     where: {
       id: transactionId,

@@ -44,6 +44,7 @@ import { createTransaction } from "../_actions/create-transaction";
 import { DateRangeContext } from "@/app/providers/date-range";
 import { editTransaction } from "../_actions/edit-transaction";
 import { paymentMethodTypes } from "@prisma/client";
+import AddClient from "./add-client";
 
 const formSchema = z.object({
   title: z.string().trim().min(2, { message: "O título é obrigatório" }),
@@ -79,6 +80,8 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
   const [loading, setLoading] = useState(false);
 
   const [transactionAdded, setTransactionAdded] = useState(false);
+
+  const [clientId, setClientId] = useState<string | undefined>(undefined);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -134,6 +137,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       installments,
       notes,
       payment,
+      client_id: clientId,
     });
 
     if (res.message) {
@@ -153,10 +157,15 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
     <div>
       {!transactionId && !transactionAdded && (
         <div className="mb-5">
-          <h2 className="text-lg font-semibold">Nova transação</h2>
-          <p className="text-xs text-gray-400">
-            Preencha os dados para adicionar uma nova transação.
-          </p>
+          <div className="flex items-end px-4 justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Nova transação</h2>
+              <p className="text-xs text-gray-400">
+                Preencha os dados para adicionar uma nova transação.
+              </p>
+            </div>
+            <AddClient setClientId={setClientId} />
+          </div>
         </div>
       )}
       {transactionAdded ? (

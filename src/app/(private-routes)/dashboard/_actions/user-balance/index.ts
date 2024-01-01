@@ -68,7 +68,5 @@ export const getUserTransactions = async ({
     where: generateSearchQuery(),
   });
 
-  console.log(transactions);
-
   return { transactions, statusCode: 200 };
 };

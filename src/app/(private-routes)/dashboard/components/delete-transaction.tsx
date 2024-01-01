@@ -16,6 +16,7 @@ import { deleteTransaction } from "../_actions/delete-transaction";
 import { useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DateRangeContext } from "@/app/providers/date-range";
+import { Toaster } from "@/components/ui/toaster";
 
 const DeleteTransaction = ({ transactionId }: { transactionId: string }) => {
   const { setRevalidateTransactions } = useContext(DateRangeContext);
@@ -42,6 +43,7 @@ const DeleteTransaction = ({ transactionId }: { transactionId: string }) => {
 
   return (
     <Dialog>
+      <Toaster />
       <DialogTrigger asChild className="hover:bg-gray-100 w-full">
         <button className="flex items-center gap-1 font-medium text-xs p-1">
           <Trash2Icon size={14} /> Excluir

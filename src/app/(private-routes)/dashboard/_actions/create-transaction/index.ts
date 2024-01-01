@@ -80,10 +80,6 @@ export const createTransaction = async ({
     data.forEach((item) => (item["client_id"] = client_id));
   }
 
-  if (pet_id) {
-    data.forEach((item) => (item["pet_id"] = pet_id));
-  }
-
   const transactions = await prismaClient.transaction.createMany({
     data,
   });
