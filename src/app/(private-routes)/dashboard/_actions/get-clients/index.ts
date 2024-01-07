@@ -24,6 +24,9 @@ export const getClients = async ({ search }: { search: string }) => {
         {
           document: search,
         },
+        {
+          id: search,
+        },
       ],
     },
   });
