@@ -5,7 +5,7 @@ import SearchClient from "./search-client";
 import { useState } from "react";
 
 const AddClient = ({ setClientId }: { setClientId: (id: string) => void }) => {
-  const [modal, setModal] = useState(true);
+  const [modal, setModal] = useState(false);
 
   return (
     <Dialog open={modal} onOpenChange={setModal}>
