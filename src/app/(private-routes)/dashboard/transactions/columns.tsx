@@ -139,6 +139,7 @@ export const columns: ColumnDef<Transaction>[] = [
                     payment: row.original.payment,
                     status: row.original.status,
                     type: row.original.type,
+                    client_id: row.original.client_id || undefined,
                   }}
                 />
               </DialogContent>

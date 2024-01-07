@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useToast } from "@/components/ui/use-toast";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -45,6 +45,7 @@ import { DateRangeContext } from "@/app/providers/date-range";
 import { editTransaction } from "../_actions/edit-transaction";
 import { paymentMethodTypes } from "@prisma/client";
 import AddClient from "./add-client";
+import { getClients } from "../_actions/get-clients";
 
 const formSchema = z.object({
   title: z.string().trim().min(2, { message: "O título é obrigatório" }),
@@ -57,6 +58,7 @@ const formSchema = z.object({
   status: z.string({ required_error: "O status não pode ficar em branco" }),
   payment: z.enum(["PIX", "BILL", "CREDIT", "DEBIT", "CASH"]),
   notes: z.string().trim(),
+  client_name: z.string().optional(),
 });
 
 interface TransactionFormProps {
@@ -68,6 +70,7 @@ interface TransactionFormProps {
     status: boolean;
     payment: paymentMethodTypes;
     notes: string;
+    client_id?: string;
   };
   transactionId?: string;
 }
@@ -81,7 +84,22 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
 
   const [transactionAdded, setTransactionAdded] = useState(false);
 
-  const [clientId, setClientId] = useState<string | undefined>(undefined);
+  const [clientId, setClientId] = useState<string | undefined>(
+    data?.client_id || undefined
+  );
+  const [clientName, setClientName] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const getClient = async () => {
+      const { clients } = await getClients({ search: clientId! });
+      if (clients) {
+        setClientName(clients[0].name);
+      }
+    };
+    if (data?.client_id) {
+      getClient();
+    }
+  }, [clientId, data]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -94,6 +112,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       status: !data?.status ? "0" : "1",
       payment: data?.payment || "CASH",
       notes: data?.notes || "",
+      client_name: clientName,
     },
   });
 
@@ -179,6 +198,19 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
         <Form {...form}>
           <Toaster />
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {clientName && (
+              <div className="flex items-center gap-4">
+                <label htmlFor="client" className="text-sm w-1/5 font-medium">
+                  Cliente
+                </label>
+                <Input
+                  type="text"
+                  disabled
+                  value={clientName}
+                  className="rounded-lg border w-full flex-1 border-gray-300 bg-white text-sm"
+                />
+              </div>
+            )}
             <FormField
               control={form.control}
               name="title"
@@ -275,7 +307,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                 name="amount"
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-4 w-full flex-1 space-y-0">
-                    <FormLabel className="w-1/3">Valor</FormLabel>
+                    <FormLabel className="w-1/5">Valor</FormLabel>
                     <FormControl>
                       <CurrencyInput
                         decimalsLimit={2}
@@ -283,7 +315,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                         onValueChange={field.onChange}
                         value={field.value}
                         onBlur={field.onBlur}
-                        className="w-full"
+                        className={`flex-1 ${!transactionId && "ml-3"}`}
                       />
                     </FormControl>
                     <FormMessage />
@@ -296,7 +328,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                   control={form.control}
                   name="installments"
                   render={({ field }) => (
-                    <FormItem className="w-1/6">
+                    <FormItem className="w-16">
                       <FormControl>
                         <Input
                           placeholder="Número de parcelas"
