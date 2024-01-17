@@ -96,7 +96,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
         setClientName(clients[0].name);
       }
     };
-    if (data?.client_id) {
+    if (data?.client_id || clientId) {
       getClient();
     }
   }, [clientId, data]);
