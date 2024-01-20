@@ -2,7 +2,7 @@ import DateRangeProvider from "@/app/providers/date-range";
 import { DataTable } from "./transactions/data-table";
 import UserBalance from "./components/user-balance";
 
-const Dashboard = async () => {
+const DashboardPage = async () => {
   return (
     <div className="lg:pl-80 pb-20 lg:pb-0">
       <DateRangeProvider>
@@ -15,4 +15,4 @@ const Dashboard = async () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
