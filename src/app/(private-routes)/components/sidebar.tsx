@@ -12,7 +12,7 @@ import {
   LogOutIcon,
   MoreHorizontalIcon,
   SettingsIcon,
-  UserIcon,
+  UsersIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
@@ -35,9 +35,9 @@ const Sidebar = () => {
       icon: <CalendarIcon size={24} />,
     },
     {
-      label: "Perfil",
-      route: "/profile",
-      icon: <UserIcon size={24} />,
+      label: "Clientes",
+      route: "/clients",
+      icon: <UsersIcon size={24} />,
     },
     {
       label: "Configurações",
