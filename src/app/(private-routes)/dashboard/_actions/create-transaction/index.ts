@@ -15,7 +15,6 @@ interface CreateTransactionProps {
   notes: string;
   payment: paymentMethodTypes;
   client_id?: string;
-  pet_id?: string;
 }
 
 export const createTransaction = async ({
@@ -28,7 +27,6 @@ export const createTransaction = async ({
   notes,
   payment,
   client_id,
-  pet_id,
 }: CreateTransactionProps) => {
   const session = await getServerSession(authOptions);
   const user_id = session?.user.id;
