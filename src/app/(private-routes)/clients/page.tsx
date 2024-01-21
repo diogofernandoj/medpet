@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "./clients-table/data-table";
 import { prismaClient } from "@/app/lib/prisma";
 import { columns } from "./clients-table/columns";
+import Link from "next/link";
 
 const ClientsPage = async () => {
   const clients = await prismaClient.client.findMany({});
@@ -11,9 +12,11 @@ const ClientsPage = async () => {
       <div className="flex flex-col w-full mx-auto px-20 my-20 gap-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Clientes</h2>
-          <Button variant="ghost" className="text-primary">
-            Novo cliente
-          </Button>
+          <Link href="/clients/new-client">
+            <Button variant="ghost" className="text-primary">
+              Novo cliente
+            </Button>
+          </Link>
         </div>
         <DataTable data={clients} columns={columns} />
       </div>
