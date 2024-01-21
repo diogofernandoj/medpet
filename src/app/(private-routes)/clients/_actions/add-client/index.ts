@@ -10,7 +10,6 @@ interface addClientProps {
   document: string;
   phone: string;
   address: string;
-  notes: string;
 }
 
 export const addClient = async ({
@@ -18,7 +17,6 @@ export const addClient = async ({
   document,
   phone,
   address,
-  notes,
 }: addClientProps) => {
   const session = await getServerSession(authOptions);
   const user_id = session?.user.id;
@@ -37,7 +35,6 @@ export const addClient = async ({
       document,
       phone,
       address,
-      notes,
     },
   });
 
