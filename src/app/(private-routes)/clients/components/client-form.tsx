@@ -28,7 +28,6 @@ const formSchema = z.object({
   document: z.string().trim(),
   phone: z.string().trim(),
   address: z.string().trim(),
-  notes: z.string().trim(),
 });
 
 const ClientForm = () => {
@@ -44,16 +43,15 @@ const ClientForm = () => {
       document: "",
       phone: "",
       address: "",
-      notes: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
 
-    const { name, document, phone, address, notes } = values;
+    const { name, document, phone, address } = values;
 
-    const res = await addClient({ name, document, phone, address, notes });
+    const res = await addClient({ name, document, phone, address });
 
     if (res.message) {
       toast({
@@ -134,24 +132,6 @@ const ClientForm = () => {
               <FormControl>
                 <Input
                   placeholder="Endereço do cliente"
-                  {...field}
-                  className="rounded-sm bg-white focus-visible:ring-1 focus-visible:ring-offset-0"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem className="flex items-center space-y-0 gap-5">
-              <FormLabel className="w-1/5">Anotações</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Anotações do cliente"
                   {...field}
                   className="rounded-sm bg-white focus-visible:ring-1 focus-visible:ring-offset-0"
                 />
