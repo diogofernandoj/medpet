@@ -72,7 +72,7 @@ const Sidebar = () => {
             href={item.route}
             key={item.route}
             className={`flex flex-1 flex-col items-center lg:hover:bg-green-50 transition-all ease-in-out lg:hover:text-primary lg:w-full lg:py-2 lg:justify-start text-xs font-medium lg:pl-6 justify-center lg:flex-row lg:text-base lg:gap-3 lg:flex-initial ${
-              pathname === item.route &&
+              pathname.startsWith(item.route) &&
               "text-primary lg:bg-green-50 lg:after:w-1 lg:after:h-full lg:after:bg-primary lg:after:absolute lg:relative lg:after:left-0"
             } ${item.route === "/settings" && "hidden lg:flex"}`}
           >
