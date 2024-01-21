@@ -164,7 +164,11 @@ export const columns: ColumnDef<Transaction>[] = [
                 <span className="font-semibold text-xs text-primary">
                   Anotações:
                 </span>
-                <Input type="text" disabled value={row.original.notes} />
+                <textarea
+                  value={row.original.notes}
+                  disabled
+                  className="p-2 text-gray-400 hover:cursor-not-allowed"
+                />
               </DialogContent>
             </Dialog>
           </DropdownMenuContent>
