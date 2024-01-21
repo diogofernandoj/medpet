@@ -31,10 +31,10 @@ export const addClient = async ({
   const client = await prismaClient.client.create({
     data: {
       user_id,
-      name,
+      name: name.toUpperCase(),
       document,
       phone,
-      address,
+      address: address.toUpperCase(),
     },
   });
 
