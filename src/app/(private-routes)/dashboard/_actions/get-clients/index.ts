@@ -19,7 +19,7 @@ export const getClients = async ({ search }: { search: string }) => {
     where: {
       OR: [
         {
-          name: { contains: search },
+          name: { contains: search.toUpperCase() },
         },
         {
           document: search,
