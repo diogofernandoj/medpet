@@ -47,8 +47,6 @@ model Transaction {
   payment   paymentMethodTypes
   client    Client?            @relation(fields: [client_id], references: [id])
   client_id String?
-  pet_id    String?
-  pet       Pet?               @relation(fields: [pet_id], references: [id])
 
   @@map("transactions")
 }
@@ -61,7 +59,7 @@ model Client {
   document     String
   address      String
   phone        String
-  notes        String
+  notes        String[]
   transactions Transaction[]
   pets         Pet[]
 
@@ -69,13 +67,12 @@ model Client {
 }
 
 model Pet {
-  id           String        @id @default(uuid())
-  name         String
-  birth        DateTime
-  category     String
-  client_id    String
-  client       Client        @relation(fields: [client_id], references: [id])
-  transactions Transaction[]
+  id        String   @id @default(uuid())
+  name      String
+  birth     DateTime
+  category  String
+  client_id String
+  client    Client   @relation(fields: [client_id], references: [id])
 
   @@map("pets")
 }
