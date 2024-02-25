@@ -66,6 +66,7 @@ export const getUserTransactions = async ({
 
   const transactions = await prismaClient.transaction.findMany({
     where: generateSearchQuery(),
+    include: { client: true },
   });
 
   return { transactions, statusCode: 200 };
