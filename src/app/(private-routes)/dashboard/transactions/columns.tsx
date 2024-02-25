@@ -14,8 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Transaction } from "@prisma/client";
+import { Client, Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import localePtBr from "date-fns/locale/pt-BR";
@@ -29,7 +28,7 @@ import {
 import TransactionForm from "../components/transaction-form";
 import DeleteTransaction from "../components/delete-transaction";
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<Transaction & { client: Client }>[] = [
   {
     accessorKey: "title",
     header: () => <div className="text-sm">Título</div>,
@@ -153,13 +152,20 @@ export const columns: ColumnDef<Transaction>[] = [
               </DialogTrigger>
               <DialogContent className="bg-white">
                 <DialogHeader className="mb-4">
-                  <p className="text-sm">{`${row.original.title}, ${format(
-                    row.original.date,
-                    "dd 'de' MMMM 'de' yyyy",
-                    {
-                      locale: localePtBr,
-                    }
-                  )}`}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{`${row.original.title}, ${format(
+                      row.original.date,
+                      "dd 'de' MMMM 'de' yyyy",
+                      {
+                        locale: localePtBr,
+                      }
+                    )}`}</span>
+                    {row.original.client && (
+                      <span className="text-xs font-medium">
+                        {"- "} {row.original.client.name}
+                      </span>
+                    )}
+                  </div>
                 </DialogHeader>
                 <span className="font-semibold text-xs text-primary">
                   Anotações:
