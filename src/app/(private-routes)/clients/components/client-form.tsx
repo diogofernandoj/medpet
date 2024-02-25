@@ -22,15 +22,26 @@ import PhoneInput from "./phone-input";
 import DocumentInput from "./document-input";
 import Link from "next/link";
 import { addClient } from "../_actions/add-client";
+import { editClient } from "../_actions/edit-client";
 
 const formSchema = z.object({
   name: z.string().trim().min(2, { message: "Este campo é obrigatório!" }),
-  document: z.string().trim(),
-  phone: z.string().trim(),
-  address: z.string().trim(),
+  document: z.string(),
+  phone: z.string(),
+  address: z.string().trim().min(4, { message: "Este campo é obrigatório" }),
 });
 
-const ClientForm = () => {
+interface ClientFormProps {
+  client?: {
+    id: string;
+    name: string;
+    document: string;
+    phone: string;
+    address: string;
+  };
+}
+
+const ClientForm = ({ client }: ClientFormProps) => {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -39,10 +50,10 @@ const ClientForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      document: "",
-      phone: "",
-      address: "",
+      name: client?.name || "",
+      document: client?.document || "",
+      phone: client?.phone || "",
+      address: client?.address || "",
     },
   });
 
@@ -50,6 +61,32 @@ const ClientForm = () => {
     setLoading(true);
 
     const { name, document, phone, address } = values;
+
+    if (client) {
+      const res = await editClient({
+        id: client.id,
+        name,
+        document,
+        phone,
+        address,
+      });
+
+      if (res.message) {
+        toast({
+          description: "Falha ao cadastrar cliente",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      toast({
+        description: "Cliente atualizado com sucesso!",
+        className: "bg-primary text-white font-bold",
+      });
+      setLoading(false);
+      return;
+    }
 
     const res = await addClient({ name, document, phone, address });
 
@@ -75,8 +112,8 @@ const ClientForm = () => {
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="flex items-center space-y-0 gap-5">
-              <FormLabel className="w-1/5">Nome</FormLabel>
+            <FormItem className="flex flex-col space-y-0 gap-2">
+              <FormLabel>Nome</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Nome do cliente"
@@ -93,8 +130,8 @@ const ClientForm = () => {
           control={form.control}
           name="document"
           render={({ field }) => (
-            <FormItem className="flex items-center space-y-0 gap-5">
-              <FormLabel className="w-1/5">CPF</FormLabel>
+            <FormItem className="flex flex-col space-y-0 gap-2">
+              <FormLabel>CPF</FormLabel>
               <FormControl>
                 <DocumentInput
                   {...field}
@@ -110,8 +147,8 @@ const ClientForm = () => {
           control={form.control}
           name="phone"
           render={({ field }) => (
-            <FormItem className="flex items-center space-y-0 gap-5">
-              <FormLabel className="w-1/5">Telefone</FormLabel>
+            <FormItem className="flex flex-col space-y-0 gap-2">
+              <FormLabel>Telefone</FormLabel>
               <FormControl>
                 <PhoneInput
                   {...field}
@@ -127,8 +164,8 @@ const ClientForm = () => {
           control={form.control}
           name="address"
           render={({ field }) => (
-            <FormItem className="flex items-center space-y-0 gap-5">
-              <FormLabel className="w-1/5">Endereço</FormLabel>
+            <FormItem className="flex flex-col space-y-0 gap-2">
+              <FormLabel>Endereço</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Endereço do cliente"
