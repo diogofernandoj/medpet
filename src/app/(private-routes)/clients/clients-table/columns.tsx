@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import DeleteClient from "../components/delete-client";
+import Link from "next/link";
 
 export const columns: ColumnDef<Client>[] = [
   {
@@ -88,14 +89,11 @@ export const columns: ColumnDef<Client>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Dialog>
-              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
-                <button className="flex items-center gap-1 font-medium text-xs p-1">
-                  <EyeIcon size={14} /> Ver completo
-                </button>
-              </DialogTrigger>
-              <DialogContent>oi</DialogContent>
-            </Dialog>
+            <Link href={`/clients/${row.original.id}`}>
+              <button className="flex items-center gap-1 font-medium text-xs p-1">
+                <EyeIcon size={14} /> Ver completo
+              </button>
+            </Link>
             <DeleteClient clientId={row.original.id} />
           </DropdownMenuContent>
         </DropdownMenu>
