@@ -90,7 +90,7 @@ export const columns: ColumnDef<Client>[] = [
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <Link href={`/clients/${row.original.id}`}>
-              <button className="flex items-center gap-1 font-medium text-xs p-1">
+              <button className="flex items-center gap-1 font-medium text-xs p-1 w-full hover:bg-gray-100">
                 <EyeIcon size={14} /> Ver completo
               </button>
             </Link>
