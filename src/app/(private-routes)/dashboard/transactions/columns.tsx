@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import TransactionForm from "../components/transaction-form";
 import DeleteTransaction from "../components/delete-transaction";
+import ToggleStatusButton from "../components/toggle-status-button";
 
 export const columns: ColumnDef<Transaction & { client: Client }>[] = [
   {
@@ -55,13 +56,18 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
     accessorKey: "status",
     header: () => <div className="text-center text-sm">Status</div>,
     cell: ({ row }) => {
+      const transactionId = row.original.id;
       const status = row.original.status ? (
         <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          Pago
+          <ToggleStatusButton transactionId={transactionId} status={false}>
+            Pago
+          </ToggleStatusButton>
         </span>
       ) : (
         <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          Pendente
+          <ToggleStatusButton transactionId={transactionId} status={true}>
+            Pendente
+          </ToggleStatusButton>
         </span>
       );
 
