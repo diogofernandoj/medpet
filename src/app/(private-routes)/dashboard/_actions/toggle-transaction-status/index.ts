@@ -3,6 +3,7 @@
 import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 interface toggleTransactionStatusProps {
   transactionId: string;
@@ -31,6 +32,8 @@ export const toggleTransactionStatus = async ({
       status,
     },
   });
+
+  revalidatePath("/");
 
   return { transaction, statusCode: 200 };
 };
