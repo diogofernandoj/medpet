@@ -46,8 +46,29 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
         </span>
       );
       return (
-        <div className="font-medium text-[10px] lg:text-base text-gray-500">
+        <div className="font-medium text-[10px] lg:text-sm text-gray-500">
           {title}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "client",
+    header: "Cliente",
+    cell: ({ row }) => {
+      const clientName = row.original?.client?.name || "";
+      const capitalizedName = () => {
+        const names = clientName.toLocaleLowerCase().split(" ");
+        const name = names.map(
+          (name) => name.charAt(0).toLocaleUpperCase() + name.slice(1)
+        );
+
+        return name.join(" ");
+      };
+
+      return (
+        <div className="font-medium text-[10px] lg:text-sm text-gray-500">
+          {capitalizedName()}
         </div>
       );
     },
