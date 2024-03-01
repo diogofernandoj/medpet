@@ -17,12 +17,12 @@ import { getUserTransactions } from "../_actions/user-balance";
 import { DateRange } from "react-day-picker";
 
 const CalendarDateRangePicker = () => {
+  const { setTransactions, startDate, setStartDate, endDate, setEndDate } =
+    useContext(DateRangeContext);
   const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    to: new Date(),
+    from: startDate,
+    to: endDate,
   });
-
-  const { setTransactions } = useContext(DateRangeContext);
 
   const handleDatePicked = async (action: boolean) => {
     if (!action) {
@@ -72,7 +72,11 @@ const CalendarDateRangePicker = () => {
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={(date) => {
+              setDate({ from: date?.from, to: date?.to });
+              setStartDate(date?.from);
+              setEndDate(date?.to);
+            }}
             numberOfMonths={2}
           />
         </PopoverContent>

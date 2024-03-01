@@ -13,6 +13,10 @@ interface IDateRangeContext {
   expenses: number;
   balance: number;
   setRevalidateTransactions: (prev: (prev: number) => number) => void;
+  startDate: Date | undefined;
+  setStartDate: (date: any) => void;
+  endDate: Date | undefined;
+  setEndDate: (date: any) => void;
 }
 
 export const DateRangeContext = createContext<IDateRangeContext>({
@@ -24,6 +28,10 @@ export const DateRangeContext = createContext<IDateRangeContext>({
   expenses: 0,
   balance: 0,
   setRevalidateTransactions: () => {},
+  startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  setStartDate: () => {},
+  endDate: new Date(),
+  setEndDate: () => {},
 });
 
 interface DateRangeProviderProps {
@@ -65,14 +73,12 @@ const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
 
   const [revalidateTransactions, setRevalidateTransactions] = useState(0);
 
-  useEffect(() => {
-    const startDate = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    );
-    const endDate = new Date();
+  const [startDate, setStartDate] = useState(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+  );
+  const [endDate, setEndDate] = useState(new Date());
 
+  useEffect(() => {
     const getUserInfo = async () => {
       const { transactions } = await getUserTransactions({
         startDate,
@@ -84,7 +90,7 @@ const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
       setTransactions(transactions!);
     };
     getUserInfo();
-  }, [revalidateTransactions]);
+  }, [revalidateTransactions, startDate, endDate]);
 
   return (
     <DateRangeContext.Provider
@@ -97,6 +103,10 @@ const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
         expenses,
         balance,
         setRevalidateTransactions,
+        startDate,
+        endDate,
+        setStartDate,
+        setEndDate,
       }}
     >
       {children}
