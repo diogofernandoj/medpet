@@ -19,13 +19,13 @@ export const getClientTransactions = async ({
     };
   }
 
-  const transactions = await prismaClient.transaction.findMany({
+  const res = await prismaClient.transaction.findMany({
     where: {
       client_id: clientId,
     },
   });
 
-  console.log(transactions);
+  const transactions = res?.sort((a, b) => Number(b.date) - Number(a.date));
 
   return { transactions, statusCode: 200 };
 };
