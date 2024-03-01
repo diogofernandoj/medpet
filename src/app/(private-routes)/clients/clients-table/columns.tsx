@@ -34,17 +34,7 @@ export const columns: ColumnDef<Client>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDownIcon className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Nome",
     cell: ({ row }) => {
       return (
         <div className="font-medium text-[10px] lg:text-sm text-gray-800">
