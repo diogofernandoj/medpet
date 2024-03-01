@@ -6,6 +6,19 @@ import Link from "next/link";
 
 const ClientsPage = async () => {
   const clients = await prismaClient.client.findMany({});
+  clients.sort((a, b) => {
+    const nameOne = a.name.toUpperCase();
+    const nameTwo = b.name.toUpperCase();
+
+    if (nameOne < nameTwo) {
+      return -1;
+    }
+    if (nameOne > nameTwo) {
+      return 1;
+    }
+
+    return 0;
+  });
 
   return (
     <div className="lg:pl-80 pb-20 lg:pb-0">
