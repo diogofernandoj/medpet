@@ -25,7 +25,9 @@ export const getClientTransactions = async ({
     },
   });
 
-  const transactions = res?.sort((a, b) => Number(b.date) - Number(a.date));
+  const transactions = res?.sort(
+    (a, b) => Number(b.payment_date) - Number(a.payment_date)
+  );
 
   return { transactions, statusCode: 200 };
 };

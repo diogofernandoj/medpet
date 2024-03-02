@@ -38,7 +38,7 @@ export const getUserTransactions = async ({
         AND: [
           ...searchQuery.AND,
           {
-            date: {
+            payment_date: {
               gte: new Date(startDate),
             },
           },
@@ -52,7 +52,7 @@ export const getUserTransactions = async ({
         AND: [
           ...searchQuery.AND,
           {
-            date: {
+            payment_date: {
               gte: new Date(startDate),
               lte: new Date(endDate),
             },

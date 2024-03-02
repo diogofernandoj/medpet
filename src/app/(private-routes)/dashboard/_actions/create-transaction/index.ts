@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 
 interface CreateTransactionProps {
   title: string;
-  date: Date;
+  payment_date: Date;
   type: transactionTypes;
   status: boolean;
   amount: number;
@@ -19,7 +19,7 @@ interface CreateTransactionProps {
 
 export const createTransaction = async ({
   title,
-  date,
+  payment_date,
   type,
   status,
   installments,
@@ -45,7 +45,7 @@ export const createTransaction = async ({
       data.push({
         user_id,
         title,
-        date: new Date(new Date(date).setHours(0, 0, 0, 0)),
+        payment_date: new Date(new Date(payment_date).setHours(0, 0, 0, 0)),
         type,
         status,
         amount,
@@ -56,9 +56,9 @@ export const createTransaction = async ({
       data.push({
         user_id,
         title,
-        date: new Date(
-          new Date(date).getFullYear(),
-          new Date(date).getMonth() + i,
+        payment_date: new Date(
+          new Date(payment_date).getFullYear(),
+          new Date(payment_date).getMonth() + i,
           1,
           0,
           0,
