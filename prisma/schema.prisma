@@ -39,7 +39,7 @@ model Transaction {
   user_id   String
   user      User               @relation(fields: [user_id], references: [id])
   title     String
-  date      DateTime
+  payment_date      DateTime
   amount    Decimal            @db.Decimal(8, 2)
   type      transactionTypes
   status    Boolean
@@ -47,6 +47,7 @@ model Transaction {
   payment   paymentMethodTypes
   client    Client?            @relation(fields: [client_id], references: [id])
   client_id String?
+  created_at DateTime @default(now())
 
   @@map("transactions")
 }
