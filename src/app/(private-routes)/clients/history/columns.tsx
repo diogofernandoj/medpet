@@ -14,22 +14,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Transaction } from "@prisma/client";
+import { Client, Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import localePtBr from "date-fns/locale/pt-BR";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  EyeIcon,
   MoreHorizontal,
   PenSquareIcon,
-  Settings2Icon,
 } from "lucide-react";
-import TransactionForm from "../../dashboard/components/transaction-form";
-import DeleteTransaction from "../../dashboard/components/delete-transaction";
-import localePtBr from "date-fns/locale/pt-BR";
+import Link from "next/link";
 import ToggleStatusButton from "../../dashboard/components/toggle-status-button";
+import DeleteTransaction from "../../dashboard/components/delete-transaction";
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<Transaction & { client: Client }>[] = [
+  {
+    accessorKey: "created_at",
+    header: () => <div className="text-sm">Data</div>,
+    cell: ({ row }) => {
+      const date = new Date(row.original.created_at);
+      const formatted = format(date, "dd/MM/yyyy");
+
+      return (
+        <div className="font-medium text-[10px] lg:text-base text-gray-500">
+          {formatted}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "title",
     header: () => <div className="text-sm">Título</div>,
@@ -46,7 +60,7 @@ export const columns: ColumnDef<Transaction>[] = [
         </span>
       );
       return (
-        <div className="font-medium text-[10px] lg:text-base text-gray-500">
+        <div className="font-medium text-[10px] lg:text-sm text-gray-500">
           {title}
         </div>
       );
@@ -59,13 +73,11 @@ export const columns: ColumnDef<Transaction>[] = [
       const transactionId = row.original.id;
       const status = row.original.status ? (
         <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <ToggleStatusButton transactionId={transactionId} status={false}>
-            Pago
-          </ToggleStatusButton>
+          <button>Pago</button>
         </span>
       ) : (
         <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <ToggleStatusButton transactionId={transactionId} status={true}>
+          <ToggleStatusButton transactionId={transactionId}>
             Pendente
           </ToggleStatusButton>
         </span>
@@ -79,10 +91,10 @@ export const columns: ColumnDef<Transaction>[] = [
     },
   },
   {
-    accessorKey: "date",
-    header: () => <div className="text-sm">Data</div>,
+    accessorKey: "payment_date",
+    header: () => <div className="text-sm">Pagamento</div>,
     cell: ({ row }) => {
-      const date = new Date(row.original.date);
+      const date = new Date(row.original.payment_date);
       const formatted = format(date, "dd/MM/yyyy");
 
       return (
@@ -127,29 +139,11 @@ export const columns: ColumnDef<Transaction>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Dialog>
-              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
-                <button className="flex items-center gap-1 font-medium text-xs p-1">
-                  <Settings2Icon size={14} /> Editar
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <TransactionForm
-                  transactionId={row.original.id}
-                  data={{
-                    title: row.original.title,
-                    amount: Number(row.original.amount),
-                    date: row.original.date,
-                    notes: row.original.notes,
-                    payment: row.original.payment,
-                    status: row.original.status,
-                    type: row.original.type,
-                    client_id: row.original.client_id || undefined,
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
-            <DeleteTransaction transactionId={row.original.id} />
+            <Link href={`/dashboard//transactions/${row.original.id}`}>
+              <button className="flex items-center gap-1 font-medium text-xs p-1 w-full hover:bg-gray-100">
+                <EyeIcon size={14} /> Ver completo
+              </button>
+            </Link>
             <Dialog>
               <DialogTrigger asChild className="hover:bg-gray-100 w-full">
                 <button className="flex items-center gap-1 font-medium text-xs p-1">
@@ -160,12 +154,17 @@ export const columns: ColumnDef<Transaction>[] = [
                 <DialogHeader className="mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{`${row.original.title}, ${format(
-                      row.original.date,
+                      row.original.created_at,
                       "dd 'de' MMMM 'de' yyyy",
                       {
                         locale: localePtBr,
                       }
                     )}`}</span>
+                    {row.original.client && (
+                      <span className="text-xs font-medium">
+                        {"- "} {row.original.client.name}
+                      </span>
+                    )}
                   </div>
                 </DialogHeader>
                 <span className="font-semibold text-xs text-primary">
@@ -178,6 +177,7 @@ export const columns: ColumnDef<Transaction>[] = [
                 />
               </DialogContent>
             </Dialog>
+            <DeleteTransaction transactionId={row.original.id} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

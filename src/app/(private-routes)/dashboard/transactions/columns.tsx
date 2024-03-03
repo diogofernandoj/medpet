@@ -21,15 +21,29 @@ import localePtBr from "date-fns/locale/pt-BR";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  EyeIcon,
   MoreHorizontal,
   PenSquareIcon,
-  Settings2Icon,
 } from "lucide-react";
-import TransactionForm from "../components/transaction-form";
 import DeleteTransaction from "../components/delete-transaction";
 import ToggleStatusButton from "../components/toggle-status-button";
+import Link from "next/link";
 
 export const columns: ColumnDef<Transaction & { client: Client }>[] = [
+  {
+    accessorKey: "created_at",
+    header: () => <div className="text-sm">Data</div>,
+    cell: ({ row }) => {
+      const date = new Date(row.original.created_at);
+      const formatted = format(date, "dd/MM/yyyy");
+
+      return (
+        <div className="font-medium text-[10px] lg:text-base text-gray-500">
+          {formatted}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "title",
     header: () => <div className="text-sm">Título</div>,
@@ -80,13 +94,11 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
       const transactionId = row.original.id;
       const status = row.original.status ? (
         <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <ToggleStatusButton transactionId={transactionId} status={false}>
-            Pago
-          </ToggleStatusButton>
+          <button>Pago</button>
         </span>
       ) : (
         <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <ToggleStatusButton transactionId={transactionId} status={true}>
+          <ToggleStatusButton transactionId={transactionId}>
             Pendente
           </ToggleStatusButton>
         </span>
@@ -100,10 +112,10 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
     },
   },
   {
-    accessorKey: "date",
-    header: () => <div className="text-sm">Data</div>,
+    accessorKey: "payment_date",
+    header: () => <div className="text-sm">Pagamento</div>,
     cell: ({ row }) => {
-      const date = new Date(row.original.date);
+      const date = new Date(row.original.payment_date);
       const formatted = format(date, "dd/MM/yyyy");
 
       return (
@@ -148,29 +160,11 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Dialog>
-              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
-                <button className="flex items-center gap-1 font-medium text-xs p-1">
-                  <Settings2Icon size={14} /> Editar
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <TransactionForm
-                  transactionId={row.original.id}
-                  data={{
-                    title: row.original.title,
-                    amount: Number(row.original.amount),
-                    date: row.original.date,
-                    notes: row.original.notes,
-                    payment: row.original.payment,
-                    status: row.original.status,
-                    type: row.original.type,
-                    client_id: row.original.client_id || undefined,
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
-            <DeleteTransaction transactionId={row.original.id} />
+            <Link href={`/dashboard//transactions/${row.original.id}`}>
+              <button className="flex items-center gap-1 font-medium text-xs p-1 w-full hover:bg-gray-100">
+                <EyeIcon size={14} /> Ver completo
+              </button>
+            </Link>
             <Dialog>
               <DialogTrigger asChild className="hover:bg-gray-100 w-full">
                 <button className="flex items-center gap-1 font-medium text-xs p-1">
@@ -181,7 +175,7 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
                 <DialogHeader className="mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{`${row.original.title}, ${format(
-                      row.original.date,
+                      row.original.created_at,
                       "dd 'de' MMMM 'de' yyyy",
                       {
                         locale: localePtBr,
@@ -204,6 +198,7 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
                 />
               </DialogContent>
             </Dialog>
+            <DeleteTransaction transactionId={row.original.id} />
           </DropdownMenuContent>
         </DropdownMenu>
       );
