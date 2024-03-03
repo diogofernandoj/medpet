@@ -2,9 +2,7 @@ import { prismaClient } from "@/app/lib/prisma";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ClientForm from "../components/client-form";
 import ClientHistory from "./components/client-history";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftCircle } from "lucide-react";
-import Link from "next/link";
+import BackButton from "@/components/back-button";
 
 const ClientDetailsPage = async ({
   params,
@@ -31,11 +29,7 @@ const ClientDetailsPage = async ({
         <TabsContent value="client">
           <div className="px-16 py-4">
             <div className="flex -ml-5 mt-6">
-              <Link href="/clients">
-                <Button variant="ghost">
-                  <ArrowLeftCircle size={36} className="text-primary" />
-                </Button>
-              </Link>
+              <BackButton />
               <div className="flex flex-col mb-8">
                 <h2 className="font-semibold text-lg">Perfil do cliente</h2>
                 <p className="text-gray-400 text-sm">
