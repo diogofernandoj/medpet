@@ -7,12 +7,10 @@ import { revalidatePath } from "next/cache";
 
 interface toggleTransactionStatusProps {
   transactionId: string;
-  status: boolean;
 }
 
 export const toggleTransactionStatus = async ({
   transactionId,
-  status,
 }: toggleTransactionStatusProps) => {
   const session = await getServerSession(authOptions);
   const user_id = session?.user.id;
@@ -29,7 +27,8 @@ export const toggleTransactionStatus = async ({
       id: transactionId,
     },
     data: {
-      status,
+      status: true,
+      payment_date: new Date(new Date().setHours(0, 0, 0, 0)),
     },
   });
 
