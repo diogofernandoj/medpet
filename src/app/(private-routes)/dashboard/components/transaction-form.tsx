@@ -72,12 +72,16 @@ interface TransactionFormProps {
     status: boolean;
     payment: paymentMethodTypes;
     notes: string;
-    client_id?: string;
   };
   transactionId?: string;
+  client_id?: string;
 }
 
-const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
+const TransactionForm = ({
+  data,
+  transactionId,
+  client_id,
+}: TransactionFormProps) => {
   const { setRevalidateTransactions } = useContext(DateRangeContext);
 
   const { toast } = useToast();
@@ -88,7 +92,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
   const [transactionAdded, setTransactionAdded] = useState(false);
 
   const [clientId, setClientId] = useState<string | undefined>(
-    data?.client_id || undefined
+    client_id || undefined
   );
   const [clientName, setClientName] = useState<string | undefined>(undefined);
 
@@ -99,10 +103,10 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
         setClientName(clients[0].name);
       }
     };
-    if (data?.client_id || clientId) {
+    if (client_id || clientId) {
       getClient();
     }
-  }, [clientId, data]);
+  }, [clientId, client_id]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -469,11 +473,13 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
               </DialogFooter>
             ) : (
               <div className="text-right">
-                <Link href="/dashboard">
-                  <Button variant="ghost" type="button">
-                    Cancelar
-                  </Button>
-                </Link>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => router.back()}
+                >
+                  Cancelar
+                </Button>
                 <Button
                   disabled={loading}
                   type="submit"

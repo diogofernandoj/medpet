@@ -42,6 +42,7 @@ const TransactionDetailsPage = async ({
         <div className="max-w-[900px]">
           <TransactionForm
             transactionId={params.transactionId}
+            client_id={client_id || undefined}
             data={{
               title,
               type,
@@ -49,7 +50,7 @@ const TransactionDetailsPage = async ({
               amount: Number(amount),
               notes,
               payment_date,
-              client_id: client_id || undefined,
+
               status,
             }}
           />

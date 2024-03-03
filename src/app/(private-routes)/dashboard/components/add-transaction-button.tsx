@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PlusIcon } from "lucide-react";
 import TransactionForm from "./transaction-form";
 
-const AddTransactionButton = () => {
+const AddTransactionButton = ({ client_id }: { client_id?: string }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -15,7 +15,7 @@ const AddTransactionButton = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="w-full max-w-[640px]">
-        <TransactionForm />
+        <TransactionForm client_id={client_id || undefined} />
       </DialogContent>
     </Dialog>
   );
