@@ -46,11 +46,13 @@ import { editTransaction } from "../_actions/edit-transaction";
 import { paymentMethodTypes } from "@prisma/client";
 import AddClient from "./add-client";
 import { getClients } from "../_actions/get-clients";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().trim().min(2, { message: "O título é obrigatório" }),
   type: z.enum(["EARNING", "EXPENSE"]),
-  date: z.date({ required_error: "A data é obrigatória" }),
+  payment_date: z.date({ required_error: "A data é obrigatória" }),
   amount: z.string({ required_error: "O valor não pode ser nulo" }).trim(),
   installments: z.coerce
     .number()
@@ -65,7 +67,7 @@ interface TransactionFormProps {
   data?: {
     title: string;
     type: string;
-    date: Date;
+    payment_date: Date;
     amount: number;
     status: boolean;
     payment: paymentMethodTypes;
@@ -79,6 +81,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
   const { setRevalidateTransactions } = useContext(DateRangeContext);
 
   const { toast } = useToast();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
@@ -106,7 +109,7 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
     defaultValues: {
       title: data?.title || "",
       type: "EARNING",
-      date: data?.date || new Date(),
+      payment_date: data?.payment_date || new Date(),
       amount: JSON.stringify(data?.amount) || "0",
       installments: 1,
       status: !data?.status ? "0" : "1",
@@ -118,14 +121,22 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    const { title, date, type, status, amount, installments, notes, payment } =
-      values;
+    const {
+      title,
+      payment_date,
+      type,
+      status,
+      amount,
+      installments,
+      notes,
+      payment,
+    } = values;
 
     if (transactionId) {
       const res = await editTransaction({
         transactionId,
-        amount: Number(amount),
-        date,
+        amount: parseFloat(amount.replace(",", ".")),
+        payment_date,
         notes,
         status: !!Number(status),
         title,
@@ -143,16 +154,16 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
       }
 
       setRevalidateTransactions((prev: number) => prev + 1);
-      setTransactionAdded(true);
+      router.back();
       return;
     }
 
     const res = await createTransaction({
       title,
-      date,
+      payment_date,
       type,
       status: !!Number(status),
-      amount: Number(amount),
+      amount: parseFloat(amount.replace(",", ".")),
       installments,
       notes,
       payment,
@@ -264,10 +275,10 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
 
             <FormField
               control={form.control}
-              name="date"
+              name="payment_date"
               render={({ field }) => (
                 <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Data</FormLabel>
+                  <FormLabel className="w-1/5">Pagamento</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -436,21 +447,46 @@ const TransactionForm = ({ data, transactionId }: TransactionFormProps) => {
                 </FormItem>
               )}
             />
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="ghost" type="button">
-                  Cancelar
-                </Button>
-              </DialogClose>
+            {!transactionId ? (
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost" type="button">
+                    Cancelar
+                  </Button>
+                </DialogClose>
 
-              <Button
-                disabled={loading}
-                type="submit"
-                className={`font-bold ${loading && "bg-opacity-75"}`}
-              >
-                {loading ? <Loader2Icon className="animate-spin" /> : "Salvar"}
-              </Button>
-            </DialogFooter>
+                <Button
+                  disabled={loading}
+                  type="submit"
+                  className={`font-bold ${loading && "bg-opacity-75"}`}
+                >
+                  {loading ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    "Salvar"
+                  )}
+                </Button>
+              </DialogFooter>
+            ) : (
+              <div className="text-right">
+                <Link href="/dashboard">
+                  <Button variant="ghost" type="button">
+                    Cancelar
+                  </Button>
+                </Link>
+                <Button
+                  disabled={loading}
+                  type="submit"
+                  className={`font-bold ${loading && "bg-opacity-75"}`}
+                >
+                  {loading ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    "Salvar"
+                  )}
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       )}
