@@ -10,13 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-  MoreHorizontal,
-  ArrowUpDownIcon,
-  EyeIcon,
-  Trash2Icon,
-} from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { MoreHorizontal, EyeIcon } from "lucide-react";
 import DeleteClient from "../components/delete-client";
 import Link from "next/link";
 
