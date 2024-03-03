@@ -4,6 +4,7 @@ import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
 import { paymentMethodTypes, transactionTypes } from "@prisma/client";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 interface CreateTransactionProps {
   title: string;
@@ -81,6 +82,8 @@ export const createTransaction = async ({
   const transactions = await prismaClient.transaction.createMany({
     data,
   });
+
+  revalidatePath("/");
 
   return { transactions, statusCode: 200 };
 };
