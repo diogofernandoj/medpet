@@ -5,18 +5,16 @@ import { DateRangeContext } from "@/app/providers/date-range";
 interface ToggleStatusButtonProps {
   children: ReactNode;
   transactionId: string;
-  status: boolean;
 }
 
 const ToggleStatusButton = ({
   children,
   transactionId,
-  status,
 }: ToggleStatusButtonProps) => {
   const { setRevalidateTransactions } = useContext(DateRangeContext);
 
   const handleStatusClick = () => {
-    toggleTransactionStatus({ transactionId, status });
+    toggleTransactionStatus({ transactionId });
     setRevalidateTransactions((prev) => prev + 1);
   };
 
