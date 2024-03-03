@@ -3,6 +3,7 @@
 import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 export const deleteTransaction = async ({
   transactionId,
@@ -24,6 +25,8 @@ export const deleteTransaction = async ({
       id: transactionId,
     },
   });
+
+  revalidatePath("/");
 
   return { transaction, statusCode: 200 };
 };

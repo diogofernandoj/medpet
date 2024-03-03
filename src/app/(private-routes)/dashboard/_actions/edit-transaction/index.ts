@@ -4,11 +4,12 @@ import { authOptions } from "@/app/lib/auth";
 import { prismaClient } from "@/app/lib/prisma";
 import { paymentMethodTypes, transactionTypes } from "@prisma/client";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 interface EditTransactionProps {
   transactionId: string;
   title: string;
-  date: Date;
+  payment_date: Date;
   type: transactionTypes;
   status: boolean;
   amount: number;
@@ -19,7 +20,7 @@ interface EditTransactionProps {
 export const editTransaction = async ({
   transactionId,
   title,
-  date,
+  payment_date,
   type,
   status,
   amount,
@@ -39,7 +40,7 @@ export const editTransaction = async ({
   const data = {
     user_id,
     title,
-    date,
+    payment_date,
     status,
     amount,
     type,
@@ -53,6 +54,8 @@ export const editTransaction = async ({
     },
     data,
   });
+
+  revalidatePath("/");
 
   return { transaction, statusCode: 200 };
 };
