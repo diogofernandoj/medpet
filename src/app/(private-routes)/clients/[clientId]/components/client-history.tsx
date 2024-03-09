@@ -9,8 +9,10 @@ const ClientHistory = async ({ clientId }: { clientId: string }) => {
 
   return (
     <div className="flex flex-col w-full mx-auto px-12 my-6 items-center">
-      <AddTransactionButton client_id={clientId} />
-      <div className="w-full">
+      <div className="w-full relative">
+        <div className="absolute right-8 top-8 z-10">
+          <AddTransactionButton client_id={clientId} />
+        </div>
         <DataTable columns={columns} data={data} />
       </div>
     </div>
