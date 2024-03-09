@@ -25,7 +25,11 @@ import { columns } from "./columns";
 import { DateRangeContext } from "@/app/providers/date-range";
 
 export const DataTable = () => {
-  const { transactions: data } = useContext(DateRangeContext);
+  const { transactions } = useContext(DateRangeContext);
+
+  const data = transactions.sort(
+    (a, b) => Number(b.payment_date) - Number(a.payment_date)
+  );
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
