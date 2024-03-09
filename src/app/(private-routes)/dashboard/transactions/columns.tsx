@@ -81,8 +81,10 @@ export const columns: ColumnDef<Transaction & { client: Client }>[] = [
       };
 
       return (
-        <div className="font-medium text-[10px] lg:text-sm text-gray-500">
-          {capitalizedName()}
+        <div className="font-medium text-[10px] lg:text-sm text-gray-500 hover:text-gray-800">
+          <Link href={`/clients/${row.original.client_id}`}>
+            {capitalizedName()}
+          </Link>
         </div>
       );
     },
