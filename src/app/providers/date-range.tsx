@@ -85,8 +85,9 @@ const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
         endDate,
       });
 
-      transactions?.sort((a, b) => Number(b.date) - Number(a.date));
-
+      transactions?.sort(
+        (a, b) => Number(b.payment_date) - Number(a.payment_date)
+      );
       setTransactions(transactions!);
     };
     getUserInfo();
