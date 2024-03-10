@@ -22,7 +22,7 @@ const ClientsPage = async () => {
 
   return (
     <div className="lg:pl-80 pb-20 lg:pb-0">
-      <div className="flex flex-col w-full mx-auto px-20 my-20 gap-6">
+      <div className="flex flex-col w-full mx-auto lg:px-20 px-4 my-20 gap-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Clientes</h2>
           <Link href="/clients/new-client">

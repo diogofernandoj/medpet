@@ -8,7 +8,7 @@ const ClientHistory = async ({ clientId }: { clientId: string }) => {
   const data = res?.transactions || [];
 
   return (
-    <div className="flex flex-col w-full mx-auto px-12 my-6 items-center">
+    <div className="flex flex-col w-full mx-auto px-2 lg:px-12 my-6 items-center">
       <div className="w-full relative">
         <div className="absolute right-8 top-8 z-10">
           <AddTransactionButton client_id={clientId} />

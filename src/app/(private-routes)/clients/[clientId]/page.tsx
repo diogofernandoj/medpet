@@ -27,7 +27,7 @@ const ClientDetailsPage = async ({
           <TabsTrigger value="history">Histórico</TabsTrigger>
         </TabsList>
         <TabsContent value="client">
-          <div className="px-16 py-4">
+          <div className="lg:px-16 px-4 py-4">
             <div className="flex -ml-5 mt-6">
               <BackButton />
               <div className="flex flex-col mb-8">
