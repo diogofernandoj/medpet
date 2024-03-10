@@ -55,7 +55,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="h-20 w-full bg-white fixed bottom-0 right-0 left-0 lg:h-full lg:w-80 lg:right-auto border-t-2 lg:border-t-0 lg:border-r-2 border-solid border-gray-100">
+    <div className="h-20 w-full bg-white z-10 fixed bottom-0 right-0 left-0 lg:h-full lg:w-80 lg:right-auto border-t-2 lg:border-t-0 lg:border-r-2 border-solid border-gray-100">
       <div className="w-max mx-auto p-4 hidden lg:block">
         <Image
           src="/medpet.svg"
