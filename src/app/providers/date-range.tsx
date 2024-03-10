@@ -1,11 +1,11 @@
 "use client";
 
-import { Transaction } from "@prisma/client";
+import { Client, Transaction } from "@prisma/client";
 import { ReactNode, createContext, useEffect, useState } from "react";
 import { getUserTransactions } from "../(private-routes)/dashboard/_actions/user-balance";
 
 interface IDateRangeContext {
-  transactions: Transaction[];
+  transactions: Transaction[] & { client?: Client };
   setTransactions: (data: any) => void;
   profit: number;
   prejudice: number;
@@ -39,7 +39,9 @@ interface DateRangeProviderProps {
 }
 
 const DateRangeProvider = ({ children }: DateRangeProviderProps) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<
+    Transaction[] & { client?: Client }
+  >([]);
 
   const profit = transactions.length
     ? transactions

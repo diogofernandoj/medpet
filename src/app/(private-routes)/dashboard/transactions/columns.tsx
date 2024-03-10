@@ -29,7 +29,7 @@ import DeleteTransaction from "../components/delete-transaction";
 import ToggleStatusButton from "../components/toggle-status-button";
 import Link from "next/link";
 
-export const columns: ColumnDef<Transaction & { client: Client }>[] = [
+export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
   {
     accessorKey: "created_at",
     header: () => <div className="text-sm">Data</div>,
