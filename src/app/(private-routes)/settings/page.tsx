@@ -17,7 +17,7 @@ const SettingsPage = async () => {
 
   return (
     <div className="lg:pl-80 pb-20 lg:pb-0">
-      <div className="px-20 my-12 flex flex-col gap-12">
+      <div className="lg:px-20 px-4 my-12 flex flex-col gap-12">
         <div className="flex flex-col">
           <h2 className="font-semibold text-3xl">Perfil do usuário</h2>
           <p className="text-gray-400 text-sm">
