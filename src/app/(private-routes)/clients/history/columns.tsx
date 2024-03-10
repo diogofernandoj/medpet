@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Client, Transaction } from "@prisma/client";
+import { Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import localePtBr from "date-fns/locale/pt-BR";
@@ -29,7 +29,7 @@ import Link from "next/link";
 import ToggleStatusButton from "../../dashboard/components/toggle-status-button";
 import DeleteTransaction from "../../dashboard/components/delete-transaction";
 
-export const columns: ColumnDef<Transaction & { client: Client }>[] = [
+export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "created_at",
     header: () => <div className="text-sm">Data</div>,
