@@ -115,13 +115,6 @@ const ChangePasswordForm = () => {
 
         <div className="flex justify-end w-full">
           <Button
-            variant="ghost"
-            className="text-gray-500 font-medium"
-            onClick={() => router.back()}
-          >
-            Cancelar
-          </Button>
-          <Button
             disabled={loading}
             type="submit"
             className={`rounded-full w-max font-bold ${
