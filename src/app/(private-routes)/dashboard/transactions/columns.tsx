@@ -117,7 +117,7 @@ export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
     accessorKey: "payment_date",
     header: () => <div className="text-sm">Pagamento</div>,
     cell: ({ row }) => {
-      const date = new Date(row.original.payment_date);
+      const date = new Date(new Date(row.original.payment_date).setHours(3));
       const formatted = format(date, "dd/MM/yyyy");
 
       return (
