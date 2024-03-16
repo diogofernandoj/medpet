@@ -3,9 +3,17 @@ import { DataTable } from "./clients-table/data-table";
 import { prismaClient } from "@/app/lib/prisma";
 import { columns } from "./clients-table/columns";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/lib/auth";
 
 const ClientsPage = async () => {
-  const clients = await prismaClient.client.findMany({});
+  const session = await getServerSession(authOptions);
+
+  const clients = await prismaClient.client.findMany({
+    where: {
+      user_id: session?.user.id,
+    },
+  });
   clients.sort((a, b) => {
     const nameOne = a.name.toUpperCase();
     const nameTwo = b.name.toUpperCase();
