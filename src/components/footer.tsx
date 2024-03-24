@@ -1,6 +1,6 @@
 const Footer = () => {
   return (
-    <footer className="fixed bottom-2 right-4 font-medium text-gray-600">
+    <footer className="px-4 pb-4 pt-8 text-end font-medium text-gray-600">
       © 2024 - Diogo Jorge
     </footer>
   );
