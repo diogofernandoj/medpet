@@ -93,18 +93,28 @@ export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
     accessorKey: "status",
     header: () => <div className="text-center text-sm">Status</div>,
     cell: ({ row }) => {
+      const paymentMonth = new Date(row.original.payment_date).getMonth();
+      const currentMonth = new Date().getMonth();
+
       const transactionId = row.original.id;
-      const status = row.original.status ? (
-        <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <button>Pago</button>
-        </span>
-      ) : (
-        <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <ToggleStatusButton transactionId={transactionId}>
-            Pendente
-          </ToggleStatusButton>
-        </span>
-      );
+      const status =
+        paymentMonth < currentMonth && !row.original.status ? (
+          <span className="text-red-400 bg-red-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
+            <ToggleStatusButton transactionId={transactionId}>
+              Atrasado
+            </ToggleStatusButton>
+          </span>
+        ) : row.original.status ? (
+          <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
+            <button>Pago</button>
+          </span>
+        ) : (
+          <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
+            <ToggleStatusButton transactionId={transactionId}>
+              Pendente
+            </ToggleStatusButton>
+          </span>
+        );
 
       return (
         <div className="font-medium text-center text-[10px] lg:text-sm">

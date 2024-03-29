@@ -64,10 +64,31 @@ export const getUserTransactions = async ({
     return searchQuery;
   };
 
-  const transactions = await prismaClient.transaction.findMany({
+  const res = await prismaClient.transaction.findMany({
     where: generateSearchQuery(),
     include: { client: true },
   });
+  let expired: any = [];
+  if (startDate) {
+    expired = await prismaClient.transaction.findMany({
+      where: {
+        AND: [
+          {
+            user_id,
+          },
+          {
+            status: false,
+          },
+          {
+            payment_date: {
+              lt: startDate,
+            },
+          },
+        ],
+      },
+    });
+  }
+  const transactions = res.concat(expired);
 
   return { transactions, statusCode: 200 };
 };
