@@ -86,6 +86,7 @@ export const getUserTransactions = async ({
           },
         ],
       },
+      include: { client: true },
     });
   }
   const transactions = res.concat(expired);
