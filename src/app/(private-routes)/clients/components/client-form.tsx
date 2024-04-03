@@ -9,7 +9,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -100,10 +99,13 @@ const ClientForm = ({ client }: ClientFormProps) => {
     }
 
     router.replace("/clients");
+    toast({
+      title: "Cliente adicionado com sucesso!",
+      className: "bg-primary text-white font-bold",
+    });
   };
   return (
     <Form {...form}>
-      <Toaster />
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-5"

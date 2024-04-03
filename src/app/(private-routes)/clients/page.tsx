@@ -5,6 +5,7 @@ import { columns } from "./clients-table/columns";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
+import { Toaster } from "@/components/ui/toaster";
 
 const ClientsPage = async () => {
   const session = await getServerSession(authOptions);
@@ -30,6 +31,7 @@ const ClientsPage = async () => {
 
   return (
     <div className="lg:pl-80 pb-20 lg:pb-0">
+      <Toaster />
       <div className="flex flex-col w-full mx-auto lg:px-20 px-4 my-20 gap-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Clientes</h2>

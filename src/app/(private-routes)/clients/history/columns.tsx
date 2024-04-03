@@ -1,33 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Client, Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import localePtBr from "date-fns/locale/pt-BR";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  EyeIcon,
-  MoreHorizontal,
-  PenSquareIcon,
-} from "lucide-react";
+
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import Link from "next/link";
 import ToggleStatusButton from "../../dashboard/components/toggle-status-button";
-import DeleteTransaction from "../../dashboard/components/delete-transaction";
+import ActionsMenu from "../../dashboard/components/actions-menu";
 
 export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
   {
@@ -67,21 +47,54 @@ export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
     },
   },
   {
+    accessorKey: "client",
+    header: "Cliente",
+    cell: ({ row }) => {
+      const clientName = row.original?.client?.name || "";
+      const capitalizedName = () => {
+        const names = clientName.toLocaleLowerCase().split(" ");
+        const name = names.map(
+          (name) => name.charAt(0).toLocaleUpperCase() + name.slice(1)
+        );
+
+        return name.join(" ");
+      };
+
+      return (
+        <div className="font-medium text-[10px] lg:text-sm text-gray-500 hover:text-gray-800">
+          <Link href={`/clients/${row.original.client_id}`}>
+            {capitalizedName()}
+          </Link>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: () => <div className="text-center text-sm">Status</div>,
     cell: ({ row }) => {
+      const paymentMonth = new Date(row.original.payment_date).getMonth();
+      const currentMonth = new Date().getMonth();
+
       const transactionId = row.original.id;
-      const status = row.original.status ? (
-        <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <button>Pago</button>
-        </span>
-      ) : (
-        <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
-          <ToggleStatusButton transactionId={transactionId}>
-            Pendente
-          </ToggleStatusButton>
-        </span>
-      );
+      const status =
+        paymentMonth < currentMonth && !row.original.status ? (
+          <span className="text-red-400 bg-red-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
+            <ToggleStatusButton transactionId={transactionId}>
+              Atrasado
+            </ToggleStatusButton>
+          </span>
+        ) : row.original.status ? (
+          <span className="text-green-400 bg-green-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
+            <button>Pago</button>
+          </span>
+        ) : (
+          <span className="text-yellow-400 bg-yellow-500 bg-opacity-10 px-1 lg:px-2 rounded-md">
+            <ToggleStatusButton transactionId={transactionId}>
+              Pendente
+            </ToggleStatusButton>
+          </span>
+        );
 
       return (
         <div className="font-medium text-center text-[10px] lg:text-sm">
@@ -94,7 +107,11 @@ export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
     accessorKey: "payment_date",
     header: () => <div className="text-sm">Pagamento</div>,
     cell: ({ row }) => {
-      const date = new Date(row.original.payment_date);
+      const date = new Date(
+        new Date(row.original.payment_date).setHours(
+          new Date(row.original.payment_date).getHours() + 3
+        )
+      );
       const formatted = format(date, "dd/MM/yyyy");
 
       return (
@@ -128,59 +145,7 @@ export const columns: ColumnDef<Transaction & { client?: Client }>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <Link href={`/dashboard//transactions/${row.original.id}`}>
-              <button className="flex items-center gap-1 font-medium text-xs p-1 w-full hover:bg-gray-100">
-                <EyeIcon size={14} /> Ver completo
-              </button>
-            </Link>
-            <Dialog>
-              <DialogTrigger asChild className="hover:bg-gray-100 w-full">
-                <button className="flex items-center gap-1 font-medium text-xs p-1">
-                  <PenSquareIcon size={14} /> Anotações
-                </button>
-              </DialogTrigger>
-              <DialogContent className="bg-white">
-                <DialogHeader className="mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{`${row.original.title}, ${format(
-                      row.original.created_at,
-                      "dd 'de' MMMM 'de' yyyy",
-                      {
-                        locale: localePtBr,
-                      }
-                    )}`}</span>
-                    {row.original.client && (
-                      <span className="text-xs font-medium">
-                        {"- "} {row.original.client.name}
-                      </span>
-                    )}
-                  </div>
-                </DialogHeader>
-                <span className="font-semibold text-xs text-primary">
-                  Anotações:
-                </span>
-                <textarea
-                  value={row.original.notes}
-                  disabled
-                  className="p-2 text-gray-400 hover:cursor-not-allowed"
-                />
-              </DialogContent>
-            </Dialog>
-            <DeleteTransaction transactionId={row.original.id} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <ActionsMenu row={row} />;
     },
   },
 ];

@@ -9,7 +9,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,7 +19,6 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   CalendarIcon,
-  CheckCircle2Icon,
   Loader2Icon,
 } from "lucide-react";
 import {
@@ -46,7 +44,6 @@ import { editTransaction } from "../_actions/edit-transaction";
 import { paymentMethodTypes } from "@prisma/client";
 import AddClient from "./add-client";
 import { getClients } from "../_actions/get-clients";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -75,12 +72,14 @@ interface TransactionFormProps {
   };
   transactionId?: string;
   client_id?: string;
+  setOpen?: (boolean: boolean) => void;
 }
 
 const TransactionForm = ({
   data,
   transactionId,
   client_id,
+  setOpen,
 }: TransactionFormProps) => {
   const { setRevalidateTransactions } = useContext(DateRangeContext);
 
@@ -88,8 +87,6 @@ const TransactionForm = ({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-
-  const [transactionAdded, setTransactionAdded] = useState(false);
 
   const [clientId, setClientId] = useState<string | undefined>(
     client_id || undefined
@@ -159,37 +156,47 @@ const TransactionForm = ({
 
       setRevalidateTransactions((prev: number) => prev + 1);
       router.back();
-      return;
-    }
-
-    const res = await createTransaction({
-      title,
-      payment_date,
-      type,
-      status: !!Number(status),
-      amount: parseFloat(amount.replace(",", ".")),
-      installments,
-      notes,
-      payment,
-      client_id: clientId,
-    });
-
-    if (res.message) {
       toast({
-        description: "Falha ao registrar transação",
-        variant: "destructive",
+        title: "Transação atualizada com sucesso!",
+        className: "bg-primary text-white font-bold",
       });
-      setLoading(false);
       return;
     }
 
-    setRevalidateTransactions((prev: number) => prev + 1);
-    setTransactionAdded(true);
+    if (setOpen) {
+      const res = await createTransaction({
+        title,
+        payment_date,
+        type,
+        status: !!Number(status),
+        amount: parseFloat(amount.replace(",", ".")),
+        installments,
+        notes,
+        payment,
+        client_id: clientId,
+      });
+
+      if (res.message) {
+        toast({
+          description: "Falha ao registrar transação",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      setRevalidateTransactions((prev: number) => prev + 1);
+      setOpen(false);
+      toast({
+        title: "Transação adicionada com sucesso!",
+        className: "bg-primary text-white font-bold",
+      });
+    }
   };
 
   return (
     <div>
-      {!transactionId && !transactionAdded && (
+      {!transactionId && (
         <div className="mb-5">
           <div className="flex items-end px-4 justify-between">
             <div>
@@ -202,41 +209,126 @@ const TransactionForm = ({
           </div>
         </div>
       )}
-      {transactionAdded ? (
-        <div className="text-primary flex items-center gap-3 text-lg font-semibold">
-          <CheckCircle2Icon size={30} />
-          {!transactionId
-            ? "Transação adicionada com sucesso!"
-            : "Transação atualizada com sucesso!"}
-        </div>
-      ) : (
-        <Form {...form}>
-          <Toaster />
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {clientName && (
-              <div className="flex items-center gap-4">
-                <label htmlFor="client" className="text-sm w-1/5 font-medium">
-                  Cliente
-                </label>
-                <Input
-                  type="text"
-                  disabled
-                  value={clientName}
-                  className="rounded-lg border w-full flex-1 border-gray-300 bg-white text-sm"
-                />
-              </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {clientName && (
+            <div className="flex items-center gap-4">
+              <label htmlFor="client" className="text-sm w-1/5 font-medium">
+                Cliente
+              </label>
+              <Input
+                type="text"
+                disabled
+                value={clientName}
+                className="rounded-lg border w-full flex-1 border-gray-300 bg-white text-sm"
+              />
+            </div>
+          )}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Título</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Insira um título"
+                    {...field}
+                    className="rounded-lg border w-full flex-1 border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
+          />
+
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Tipo</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={data?.type || field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-white w-full flex-1">
+                      <SelectValue placeholder="Selecione o tipo da transação" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="EARNING">
+                      <span className="flex items-center gap-1">
+                        Entrada <ArrowUpIcon size={14} color="#0f0" />
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="EXPENSE">
+                      <span className="flex items-center gap-1">
+                        Saída <ArrowDownIcon size={14} color="#f00" />
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="payment_date"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Pagamento</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left bg-white flex-1",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "dd / MM / yyyy")
+                        ) : (
+                          <span>Selecione uma data</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date("2023-01-01")}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex items-center gap-1">
             <FormField
               control={form.control}
-              name="title"
+              name="amount"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Título</FormLabel>
+                <FormItem className="flex items-center gap-4 w-full flex-1 space-y-0">
+                  <FormLabel className="w-1/5">Valor</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Insira um título"
-                      {...field}
-                      className="rounded-lg border w-full flex-1 border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                    <CurrencyInput
+                      decimalsLimit={2}
+                      placeholder="R$0,00"
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      onBlur={field.onBlur}
+                      className={`flex-1 ${!transactionId && "ml-3"}`}
                     />
                   </FormControl>
                   <FormMessage />
@@ -244,258 +336,151 @@ const TransactionForm = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Tipo</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={data?.type || field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="bg-white w-full flex-1">
-                        <SelectValue placeholder="Selecione o tipo da transação" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="EARNING">
-                        <span className="flex items-center gap-1">
-                          Entrada <ArrowUpIcon size={14} color="#0f0" />
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="EXPENSE">
-                        <span className="flex items-center gap-1">
-                          Saída <ArrowDownIcon size={14} color="#f00" />
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="payment_date"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Pagamento</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left bg-white flex-1",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "dd / MM / yyyy")
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date("2023-01-01")}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex items-center gap-1">
+            {!data && (
               <FormField
                 control={form.control}
-                name="amount"
+                name="installments"
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-4 w-full flex-1 space-y-0">
-                    <FormLabel className="w-1/5">Valor</FormLabel>
+                  <FormItem className="w-16">
                     <FormControl>
-                      <CurrencyInput
-                        decimalsLimit={2}
-                        placeholder="R$0,00"
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        onBlur={field.onBlur}
-                        className={`flex-1 ${!transactionId && "ml-3"}`}
+                      <Input
+                        placeholder="Número de parcelas"
+                        {...field}
+                        type="number"
+                        min={1}
+                        className="rounded-lg border w-full px-2 h-10 border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            )}
+          </div>
 
-              {!data && (
-                <FormField
-                  control={form.control}
-                  name="installments"
-                  render={({ field }) => (
-                    <FormItem className="w-16">
-                      <FormControl>
-                        <Input
-                          placeholder="Número de parcelas"
-                          {...field}
-                          type="number"
-                          min={1}
-                          className="rounded-lg border w-full px-2 h-10 border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="bg-white w-full flex-1">
-                        <SelectValue placeholder="Selecione o status da transação" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">
-                        <span className="flex items-center gap-1">Pago</span>
-                      </SelectItem>
-                      <SelectItem value="0">
-                        <span className="flex items-center gap-1">
-                          Pendente
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="payment"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Forma de pagamento</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="bg-white w-full flex-1">
-                        <SelectValue placeholder="Selecione a forma de pagamento" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="CASH">
-                        <span className="flex items-center gap-1">
-                          Dinheiro
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="BILL">
-                        <span className="flex items-center gap-1">Boleto</span>
-                      </SelectItem>
-                      <SelectItem value="CREDIT">
-                        <span className="flex items-center gap-1">
-                          Cartão de crédito
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="DEBIT">
-                        <span className="flex items-center gap-1">
-                          Cartão de débito
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="PIX">
-                        <span className="flex items-center gap-1">PIX</span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-4">
-                  <FormLabel className="w-1/5">Anotações</FormLabel>
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Status</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
-                    <Input
-                      placeholder="Adicione uma anotação (opcional)"
-                      {...field}
-                      className="rounded-lg border flex-1 w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
-                    />
+                    <SelectTrigger className="bg-white w-full flex-1">
+                      <SelectValue placeholder="Selecione o status da transação" />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {!transactionId ? (
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="ghost" type="button">
-                    Cancelar
-                  </Button>
-                </DialogClose>
+                  <SelectContent>
+                    <SelectItem value="1">
+                      <span className="flex items-center gap-1">Pago</span>
+                    </SelectItem>
+                    <SelectItem value="0">
+                      <span className="flex items-center gap-1">Pendente</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="payment"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Forma de pagamento</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-white w-full flex-1">
+                      <SelectValue placeholder="Selecione a forma de pagamento" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="CASH">
+                      <span className="flex items-center gap-1">Dinheiro</span>
+                    </SelectItem>
+                    <SelectItem value="BILL">
+                      <span className="flex items-center gap-1">Boleto</span>
+                    </SelectItem>
+                    <SelectItem value="CREDIT">
+                      <span className="flex items-center gap-1">
+                        Cartão de crédito
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="DEBIT">
+                      <span className="flex items-center gap-1">
+                        Cartão de débito
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="PIX">
+                      <span className="flex items-center gap-1">PIX</span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <Button
-                  disabled={loading}
-                  type="submit"
-                  className={`font-bold ${loading && "bg-opacity-75"}`}
-                >
-                  {loading ? (
-                    <Loader2Icon className="animate-spin" />
-                  ) : (
-                    "Salvar"
-                  )}
-                </Button>
-              </DialogFooter>
-            ) : (
-              <div className="text-right">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => router.back()}
-                >
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-4">
+                <FormLabel className="w-1/5">Anotações</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Adicione uma anotação (opcional)"
+                    {...field}
+                    className="rounded-lg border flex-1 w-full border-gray-300 bg-white text-sm transition-all focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {!transactionId ? (
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="ghost" type="button">
                   Cancelar
                 </Button>
-                <Button
-                  disabled={loading}
-                  type="submit"
-                  className={`font-bold ${loading && "bg-opacity-75"}`}
-                >
-                  {loading ? (
-                    <Loader2Icon className="animate-spin" />
-                  ) : (
-                    "Salvar"
-                  )}
-                </Button>
-              </div>
-            )}
-          </form>
-        </Form>
-      )}
+              </DialogClose>
+
+              <Button
+                disabled={loading}
+                type="submit"
+                className={`font-bold ${loading && "bg-opacity-75"}`}
+              >
+                {loading ? <Loader2Icon className="animate-spin" /> : "Salvar"}
+              </Button>
+            </DialogFooter>
+          ) : (
+            <div className="text-right">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => router.back()}
+              >
+                Cancelar
+              </Button>
+              <Button
+                disabled={loading}
+                type="submit"
+                className={`font-bold ${loading && "bg-opacity-75"}`}
+              >
+                {loading ? <Loader2Icon className="animate-spin" /> : "Salvar"}
+              </Button>
+            </div>
+          )}
+        </form>
+      </Form>
     </div>
   );
 };

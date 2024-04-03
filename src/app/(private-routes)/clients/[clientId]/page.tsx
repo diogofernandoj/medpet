@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ClientForm from "../components/client-form";
 import ClientHistory from "./components/client-history";
 import BackButton from "@/components/back-button";
+import { Toaster } from "@/components/ui/toaster";
 
 const ClientDetailsPage = async ({
   params,
@@ -21,6 +22,7 @@ const ClientDetailsPage = async ({
 
   return (
     <div className="lg:pl-80 pb-20 lg:pb-0">
+      <Toaster />
       <Tabs defaultValue="client" className="p-4">
         <TabsList className="bg-white">
           <TabsTrigger value="client">Cliente</TabsTrigger>
