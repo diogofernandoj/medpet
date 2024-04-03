@@ -62,18 +62,7 @@ model Client {
   phone        String
   notes        String[]
   transactions Transaction[]
-  pets         Pet[]
+  created_at DateTime @default(now())
 
   @@map("clients")
-}
-
-model Pet {
-  id        String   @id @default(uuid())
-  name      String
-  birth     DateTime
-  category  String
-  client_id String
-  client    Client   @relation(fields: [client_id], references: [id])
-
-  @@map("pets")
 }
