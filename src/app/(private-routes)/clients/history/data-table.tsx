@@ -45,9 +45,16 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const totalPaid = data
+    .filter((value) => value.status)
+    .reduce((acc, curr) => acc + Number(curr.amount), 0);
+  const totalPending = data
+    .filter((value) => !value.status)
+    .reduce((acc, curr) => acc + Number(curr.amount), 0);
+
   return (
     <div className="rounded-md border bg-white p-4">
-      <div className="flex items-center py-4">
+      <div className="flex flex-col justify-center py-4 gap-4">
         <Input
           placeholder="Pesquise aqui..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -56,6 +63,20 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm bg-white"
         />
+        <div className="flex items-center gap-4 text-xs lg:text-base py-4">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">Valor liq.:</span>
+            <span className="bg-primary rounded-full text-white px-2">
+              R${totalPaid.toFixed(2).replace(".", ",")}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">Saldo devedor:</span>
+            <span className="text-white bg-red-500 px-2 rounded-full">
+              R${totalPending.toFixed(2).replace(".", ",")}
+            </span>
+          </div>
+        </div>
       </div>
       <div>
         <Table>
