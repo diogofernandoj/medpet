@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Transaction } from "@prisma/client";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -45,10 +46,12 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  const totalPaid = data
+  const newArray: Transaction[] = data as any;
+
+  const totalPaid = newArray
     .filter((value) => value.status)
     .reduce((acc, curr) => acc + Number(curr.amount), 0);
-  const totalPending = data
+  const totalPending = newArray
     .filter((value) => !value.status)
     .reduce((acc, curr) => acc + Number(curr.amount), 0);
 
