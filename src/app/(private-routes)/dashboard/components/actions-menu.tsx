@@ -18,6 +18,7 @@ import DeleteTransaction from "./delete-transaction";
 import localePtBr from "date-fns/locale/pt-BR";
 import { format } from "date-fns";
 import { useState } from "react";
+import PartialPayment from "./partial-payment";
 
 const ActionsMenu = ({ row }: { row: any }) => {
   const [menu, setMenu] = useState(false);
@@ -71,6 +72,12 @@ const ActionsMenu = ({ row }: { row: any }) => {
             />
           </DialogContent>
         </Dialog>
+        {!row.original.status && (
+          <PartialPayment
+            transactionId={row.original.id}
+            amount={row.original.amount}
+          />
+        )}
         <DeleteTransaction transactionId={row.original.id} setMenu={setMenu} />
       </DropdownMenuContent>
     </DropdownMenu>
